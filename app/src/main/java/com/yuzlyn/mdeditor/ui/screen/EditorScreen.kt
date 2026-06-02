@@ -39,7 +39,6 @@ import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Functions
 import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Palette
@@ -509,15 +508,6 @@ private fun InsertSheet(
               color = MaterialTheme.colorScheme.onSurface,
               modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
       )
-      SheetItem(
-              icon = {
-                Icon(Icons.Default.Image, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-              },
-              label = stringResource(R.string.editor_insert_image)
-      ) {
-        insertAtCursor(textFieldValue, "![image](url)", onTextFieldUpdate)
-        scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
-      }
       SheetItem(
               icon = {
                 Icon(Icons.Default.Code, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
