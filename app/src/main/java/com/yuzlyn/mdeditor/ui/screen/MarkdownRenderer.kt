@@ -64,7 +64,11 @@ private val markdownParser: Parser by lazy {
 }
 
 @Composable
-fun MarkdownPreview(markdown: String, textColor: Color) {
+fun MarkdownPreview(
+  markdown: String,
+  textColor: Color,
+  scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()
+) {
   Log.d(TAG, "Markdown 预览解析启动")
 
   val rootNode =
@@ -79,7 +83,7 @@ fun MarkdownPreview(markdown: String, textColor: Color) {
 
   Column(
           modifier =
-                  Modifier.verticalScroll(rememberScrollState())
+                  Modifier.verticalScroll(scrollState)
                           .fillMaxWidth()
                           .padding(horizontal = 16.dp)
   ) {

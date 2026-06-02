@@ -3,7 +3,6 @@ package com.yuzlyn.mdeditor.ui.screen
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -115,6 +115,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   var isExiting by remember { mutableStateOf(false) }
   var showRenameDialog by remember { mutableStateOf(false) }
   val focusRequester = remember { FocusRequester() }
+  val editorScrollState = rememberScrollState()
 
   LaunchedEffect(noteId) { focusRequester.requestFocus() }
 
@@ -204,31 +205,13 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
                         )
         )
 
-        Box(
-                modifier =
-                        Modifier.fillMaxSize()
-                                .then(
-                                        if (!isPreviewMode)
-                                                Modifier.clickable {
-                                                          textFieldValue =
-                                                                  textFieldValue.copy(
-                                                                          selection =
-                                                                                  TextRange(
-                                                                                          textFieldValue
-                                                                                                  .text
-                                                                                                  .length
-                                                                                  )
-                                                                  )
-                                                          focusRequester.requestFocus()
-                                                        }
-                                                        .focusRequester(focusRequester)
-                                                        .focusable()
-                                        else Modifier
-                                )
-                                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
+        Box(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp)) {
           if (isPreviewMode) {
-            MarkdownPreview(markdown = textFieldValue.text, textColor = onSurfaceText)
+            MarkdownPreview(
+                    markdown = textFieldValue.text,
+                    textColor = onSurfaceText,
+                    scrollState = editorScrollState
+            )
           } else {
             BasicTextField(
                     value = textFieldValue,
