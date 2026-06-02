@@ -76,6 +76,7 @@
     <string name="editor_insert_title">插入</string>
     <string name="editor_insert_image">图片 URL</string>
     <string name="editor_insert_code">代码块</string>
+    <string name="editor_insert_table">表格</string>
     <string name="editor_insert_numbered">数字分段</string>
     <string name="editor_insert_bulleted">无数字分段</string>
     <string name="editor_insert_math">数学公式块</string>

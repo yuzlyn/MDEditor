@@ -76,6 +76,7 @@
     <string name="editor_insert_title">Insert</string>
     <string name="editor_insert_image">Image URL</string>
     <string name="editor_insert_code">Code Block</string>
+    <string name="editor_insert_table">Table</string>
     <string name="editor_insert_numbered">Numbered List</string>
     <string name="editor_insert_bulleted">Bulleted List</string>
     <string name="editor_insert_math">Math Block</string>

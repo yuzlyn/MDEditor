@@ -20,11 +20,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
@@ -36,6 +34,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Functions
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Palette
@@ -305,8 +304,6 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   }
 }
 
-
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun EditorBottomBar(
@@ -499,6 +496,23 @@ private fun InsertSheet(
               label = stringResource(R.string.editor_insert_code)
       ) {
         insertAtCursor(textFieldValue, "\n```\n\n```\n", onTextFieldUpdate)
+        scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
+      }
+      SheetItem(
+              icon = {
+                Icon(
+                        Icons.Default.GridView,
+                        null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+              },
+              label = stringResource(R.string.editor_insert_table)
+      ) {
+        insertAtCursor(
+                textFieldValue,
+                "\n| Header 1 | Header 2 | Header 3 |\n|----------|----------|----------|\n| Cell     | Cell     | Cell     |\n| Cell     | Cell     | Cell     |\n",
+                onTextFieldUpdate
+        )
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
       }
       SheetItem(

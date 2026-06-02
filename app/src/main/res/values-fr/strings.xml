@@ -76,6 +76,7 @@
     <string name="editor_insert_title">Insérer</string>
     <string name="editor_insert_image">URL d\'image</string>
     <string name="editor_insert_code">Bloc de code</string>
+    <string name="editor_insert_table">Tableau</string>
     <string name="editor_insert_numbered">Liste numérotée</string>
     <string name="editor_insert_bulleted">Liste à puces</string>
     <string name="editor_insert_math">Bloc mathématique</string>

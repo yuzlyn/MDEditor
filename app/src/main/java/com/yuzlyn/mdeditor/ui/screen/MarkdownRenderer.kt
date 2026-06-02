@@ -312,17 +312,17 @@ private fun RenderTable(tableBlock: TableBlock, textColor: Color) {
 
   Spacer(modifier = Modifier.height(8.dp))
   Box(modifier = Modifier.horizontalScroll(rememberScrollState())) {
-    Column(modifier = Modifier.widthIn(min = (colCount * 80).dp)) {
+    Column {
       allRows.forEachIndexed { rowIdx, cells ->
         val isHeader = rowIdx < headers.size
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row {
           cells.forEachIndexed { colIdx, cellText ->
             val bgColor =
                     if (isHeader) MaterialTheme.colorScheme.surfaceContainerHigh
                     else Color.Transparent
             Box(
                     modifier =
-                            Modifier.weight(1f)
+                            Modifier.widthIn(min = 80.dp, max = 200.dp)
                                     .background(bgColor)
                                     .border(1.dp, textColor.copy(alpha = 0.15f))
                                     .padding(horizontal = 8.dp, vertical = 6.dp)
@@ -340,7 +340,7 @@ private fun RenderTable(tableBlock: TableBlock, textColor: Color) {
             repeat(missing) {
               Box(
                       modifier =
-                              Modifier.weight(1f)
+                              Modifier.widthIn(min = 80.dp, max = 200.dp)
                                       .border(1.dp, textColor.copy(alpha = 0.15f))
                                       .padding(horizontal = 8.dp, vertical = 6.dp)
               ) { Text("", style = MaterialTheme.typography.bodySmall) }
