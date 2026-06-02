@@ -1112,14 +1112,23 @@ private fun NoteCard(
         )
       }
       if (note.content.isNotBlank()) {
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-                note.content,
-                style = MaterialTheme.typography.bodySmall,
-                color = cardTextVariant,
-                maxLines = 6,
-                overflow = TextOverflow.Ellipsis
-        )
+        val contentFirstLine = note.content.lines().firstOrNull() ?: ""
+        val displayContent =
+                if (displayTitle == contentFirstLine) {
+                  note.content.lines().drop(1).joinToString("\n").trim()
+                } else {
+                  note.content
+                }
+        if (displayContent.isNotBlank()) {
+          Spacer(modifier = Modifier.height(8.dp))
+          Text(
+                  displayContent,
+                  style = MaterialTheme.typography.bodySmall,
+                  color = cardTextVariant,
+                  maxLines = 6,
+                  overflow = TextOverflow.Ellipsis
+          )
+        }
       }
       Spacer(modifier = Modifier.height(8.dp))
       Text(
