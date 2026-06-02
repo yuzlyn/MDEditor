@@ -1,5 +1,6 @@
 package com.yuzlyn.mdeditor.ui.screen
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
@@ -76,6 +78,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -88,6 +92,8 @@ import com.yuzlyn.mdeditor.data.MonetPalette
 import com.yuzlyn.mdeditor.data.NoteStorage
 import com.yuzlyn.mdeditor.ui.viewmodel.FileViewModel
 import kotlinx.coroutines.launch
+
+private const val TAG = "MDEditor_Debug"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -116,6 +122,11 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   var showRenameDialog by remember { mutableStateOf(false) }
   val focusRequester = remember { FocusRequester() }
   val editorScrollState = rememberScrollState()
+  val keyboardController = LocalSoftwareKeyboardController.current
+  val windowInfo = LocalWindowInfo.current
+  val scope = rememberCoroutineScope()
+  var scrollRatio by remember { mutableStateOf(0f) }
+  var cursorLineY by remember { mutableStateOf(0f) }
 
   LaunchedEffect(noteId) { focusRequester.requestFocus() }
 
@@ -124,6 +135,43 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
       viewModel.updateNoteInMemory(noteId, textFieldValue.text)
       viewModel.saveNoteToDisk(context, noteId)
       navController.popBackStack()
+    }
+  }
+
+  LaunchedEffect(isPreviewMode) {
+    val maxScroll = editorScrollState.maxValue
+    if (maxScroll > 0 && scrollRatio > 0f) {
+      val targetOffset =
+              ((scrollRatio * maxScroll).toInt()).let {
+                if (it < 0) 0 else if (it > maxScroll) maxScroll else it
+              }
+      Log.d(TAG, "切换模式，锁定滚动百分比：$scrollRatio → 新模式位置=$targetOffset")
+      editorScrollState.scrollTo(targetOffset)
+    }
+  }
+
+  LaunchedEffect(cursorLineY) {
+    if (cursorLineY > 0f && !isPreviewMode && windowInfo.isWindowFocused) {
+      val viewportHeight = editorScrollState.viewportSize
+      if (viewportHeight > 0) {
+        val maxScroll = editorScrollState.maxValue
+        val centerOffset =
+                ((cursorLineY - viewportHeight / 2).toInt()).let {
+                  if (it < 0) 0 else if (it > maxScroll) maxScroll else it
+                }
+        Log.d(
+                TAG,
+                "键盘弹起，光标激活居中：offset=$centerOffset, cursorY=$cursorLineY, viewport=$viewportHeight"
+        )
+        editorScrollState.animateScrollTo(
+                centerOffset,
+                androidx.compose.animation.core.spring(
+                        dampingRatio =
+                                androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                        stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+                )
+        )
+      }
     }
   }
 
@@ -150,7 +198,19 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
                   }
                 },
                 actions = {
-                  IconButton(onClick = { isPreviewMode = !isPreviewMode }) {
+                  IconButton(
+                          onClick = {
+                            val maxScroll = editorScrollState.maxValue
+                            if (maxScroll > 0) {
+                              scrollRatio = editorScrollState.value.toFloat() / maxScroll.toFloat()
+                              Log.d(
+                                      TAG,
+                                      "切换模式前保存滚动进度：$scrollRatio (offset=${editorScrollState.value}/$maxScroll)"
+                              )
+                            }
+                            isPreviewMode = !isPreviewMode
+                          }
+                  ) {
                     Icon(
                             imageVector =
                                     if (isPreviewMode) Icons.Default.Visibility
@@ -208,43 +268,55 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
         Box(
                 modifier =
                         Modifier.fillMaxSize()
+                                .navigationBarsPadding()
                                 .windowInsetsPadding(WindowInsets.ime)
-                                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
           if (isPreviewMode) {
             MarkdownPreview(
                     markdown = textFieldValue.text,
                     textColor = onSurfaceText,
-                    scrollState = editorScrollState
+                    scrollState = editorScrollState,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
             )
           } else {
-            BasicTextField(
-                    value = textFieldValue,
-                    onValueChange = { newValue ->
-                      textFieldValue = newValue
-                      viewModel.updateNoteInMemory(noteId, newValue.text)
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                    textStyle =
-                            TextStyle(
-                                    color = onSurfaceText,
-                                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight
-                            ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                    decorationBox = { innerTextField ->
-                      Box {
-                        if (textFieldValue.text.isEmpty()) {
-                          Text(
-                                  stringResource(R.string.editor_placeholder),
-                                  style = MaterialTheme.typography.bodyLarge,
-                                  color = onSurfaceText.copy(alpha = 0.38f)
-                          )
+            Box(
+                    modifier =
+                            Modifier.fillMaxSize()
+                                    .verticalScroll(editorScrollState)
+                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+              BasicTextField(
+                      value = textFieldValue,
+                      onValueChange = { newValue ->
+                        textFieldValue = newValue
+                        viewModel.updateNoteInMemory(noteId, newValue.text)
+                      },
+                      onTextLayout = { layoutResult ->
+                        val cursorRect = layoutResult.getCursorRect(textFieldValue.selection.start)
+                        cursorLineY = cursorRect.top
+                      },
+                      modifier = Modifier.fillMaxWidth(),
+                      textStyle =
+                              TextStyle(
+                                      color = onSurfaceText,
+                                      fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                      lineHeight = MaterialTheme.typography.bodyLarge.lineHeight
+                              ),
+                      cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                      decorationBox = { innerTextField ->
+                        Box {
+                          if (textFieldValue.text.isEmpty()) {
+                            Text(
+                                    stringResource(R.string.editor_placeholder),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = onSurfaceText.copy(alpha = 0.38f)
+                            )
+                          }
+                          innerTextField()
                         }
-                        innerTextField()
                       }
-                    }
-            )
+              )
+            }
           }
         }
       }
