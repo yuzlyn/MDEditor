@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -723,28 +724,24 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                                               top = 8.dp,
                                               bottom = 88.dp
                                       ),
-                              verticalArrangement = Arrangement.spacedBy(8.dp)
+                              verticalArrangement = Arrangement.spacedBy(0.dp)
                       ) {
                         items(displayNotes.size, key = { displayNotes[it].id }) { index ->
-                          StaggeredFlyInCard(
-                                  key = currentScreen.name + "_" + displayNotes[index].id,
-                                  index = index
-                          ) {
-                            NoteCard(
-                                    note = displayNotes[index],
-                                    viewModel = viewModel,
-                                    isSelected = displayNotes[index].id in selectedIds,
-                                    onClick = {
-                                      if (isSelectionMode) {
-                                        toggleSelection(displayNotes[index].id)
-                                      } else if (currentScreen != DrawerScreen.TRASH) {
-                                        viewModel.setCurrentEditNoteId(displayNotes[index].id)
-                                        navController.navigate("editor")
-                                      }
-                                    },
-                                    onLongClick = { toggleSelection(displayNotes[index].id) }
-                            )
-                          }
+                          NoteListItem(
+                                  note = displayNotes[index],
+                                  viewModel = viewModel,
+                                  isSelected = displayNotes[index].id in selectedIds,
+                                  onClick = {
+                                    if (isSelectionMode) {
+                                      toggleSelection(displayNotes[index].id)
+                                    } else if (currentScreen != DrawerScreen.TRASH) {
+                                      viewModel.setCurrentEditNoteId(displayNotes[index].id)
+                                      navController.navigate("editor")
+                                    }
+                                  },
+                                  onLongClick = { toggleSelection(displayNotes[index].id) },
+                                  modifier = Modifier.animateItem()
+                          )
                         }
                       }
                     }
@@ -1108,6 +1105,75 @@ private fun NoteCard(
       Spacer(modifier = Modifier.height(8.dp))
       Text(
               viewModel.getDateFormatted(note.lastModified),
+              style = MaterialTheme.typography.labelSmall,
+              color = cardOutline
+      )
+    }
+  }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun NoteListItem(
+        note: NoteModel,
+        viewModel: FileViewModel,
+        isSelected: Boolean = false,
+        onClick: () -> Unit,
+        onLongClick: () -> Unit,
+        modifier: Modifier = Modifier
+) {
+  val cardTextColor = MonetPalette.textColorFor(note.backgroundColor)
+  val cardTextVariant = cardTextColor.copy(alpha = 0.6f)
+  val cardOutline = cardTextColor.copy(alpha = 0.35f)
+
+  Surface(
+          onClick = onClick,
+          modifier =
+                  modifier.fillMaxWidth()
+                          .then(
+                                  if (isSelected)
+                                          Modifier.border(
+                                                  2.dp,
+                                                  MaterialTheme.colorScheme.primary,
+                                                  RoundedCornerShape(12.dp)
+                                          )
+                                  else Modifier
+                          ),
+          shape = RoundedCornerShape(12.dp),
+          color = MonetPalette.bgColorFor(note.backgroundColor, MaterialTheme.colorScheme.surface),
+          tonalElevation = 1.dp
+  ) {
+    Row(
+            modifier =
+                    Modifier.fillMaxWidth()
+                            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+    ) {
+      Column(modifier = Modifier.weight(1f)) {
+        val displayTitle = note.displayTitle(stringResource(R.string.untitled))
+        Text(
+                text = displayTitle,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = cardTextColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+        )
+        if (note.content.isNotBlank()) {
+          Spacer(modifier = Modifier.height(2.dp))
+          Text(
+                  text = note.content,
+                  style = MaterialTheme.typography.bodySmall,
+                  color = cardTextVariant,
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis
+          )
+        }
+      }
+      Spacer(modifier = Modifier.width(12.dp))
+      Text(
+              text = viewModel.getDateFormatted(note.lastModified),
               style = MaterialTheme.typography.labelSmall,
               color = cardOutline
       )
