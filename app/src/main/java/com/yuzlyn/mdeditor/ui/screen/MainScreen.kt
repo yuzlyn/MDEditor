@@ -41,12 +41,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Folder
@@ -462,23 +464,39 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                     )
                   }
                 }
-                IconButton(onClick = { batchPin() }) {
-                  Icon(Icons.Outlined.PushPin, contentDescription = stringResource(R.string.pin))
-                }
-                IconButton(onClick = { showMultiColorSheet = true }) {
-                  Icon(
-                          Icons.Default.Palette,
-                          contentDescription = stringResource(R.string.bg_color)
-                  )
-                }
-                IconButton(onClick = { batchArchive() }) {
-                  Icon(
-                          Icons.Default.Archive,
-                          contentDescription = stringResource(R.string.editor_archive)
-                  )
-                }
-                IconButton(onClick = { batchDelete() }) {
-                  Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
+                if (currentScreen == DrawerScreen.TRASH) {
+                  IconButton(onClick = { batchRestore() }) {
+                    Icon(
+                            Icons.AutoMirrored.Filled.Undo,
+                            contentDescription = stringResource(R.string.restore)
+                    )
+                  }
+                  IconButton(onClick = { batchPermanentDelete() }) {
+                    Icon(
+                            Icons.Default.DeleteForever,
+                            contentDescription = stringResource(R.string.permanent_delete),
+                            tint = MaterialTheme.colorScheme.error
+                    )
+                  }
+                } else {
+                  IconButton(onClick = { batchPin() }) {
+                    Icon(Icons.Outlined.PushPin, contentDescription = stringResource(R.string.pin))
+                  }
+                  IconButton(onClick = { showMultiColorSheet = true }) {
+                    Icon(
+                            Icons.Default.Palette,
+                            contentDescription = stringResource(R.string.bg_color)
+                    )
+                  }
+                  IconButton(onClick = { batchArchive() }) {
+                    Icon(
+                            Icons.Default.Archive,
+                            contentDescription = stringResource(R.string.editor_archive)
+                    )
+                  }
+                  IconButton(onClick = { batchDelete() }) {
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
+                  }
                 }
               } else if (isSearching) {
                 IconButton(
