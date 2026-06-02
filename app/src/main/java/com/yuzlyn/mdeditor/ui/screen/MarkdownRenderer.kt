@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -25,12 +26,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import org.commonmark.ext.gfm.tables.TableBlock
@@ -138,7 +143,12 @@ private fun RenderHeading(heading: Heading, textColor: Color) {
             else -> MaterialTheme.typography.titleSmall
           }
   Spacer(modifier = Modifier.height(if (heading.level <= 2) 16.dp else 12.dp))
-  Text(text = annotated, style = style, fontWeight = FontWeight.Bold, color = textColor)
+  ClickableMarkdownText(
+          annotated = annotated,
+          style = style,
+          color = textColor,
+          fontWeight = FontWeight.Bold
+  )
   Spacer(modifier = Modifier.height(if (heading.level <= 2) 8.dp else 4.dp))
 }
 
@@ -146,7 +156,11 @@ private fun RenderHeading(heading: Heading, textColor: Color) {
 private fun RenderParagraph(paragraph: Paragraph, textColor: Color) {
   val annotated = buildInlineAnnotatedString(paragraph, textColor)
   Spacer(modifier = Modifier.height(8.dp))
-  Text(text = annotated, style = MaterialTheme.typography.bodyLarge, color = textColor)
+  ClickableMarkdownText(
+          annotated = annotated,
+          style = MaterialTheme.typography.bodyLarge,
+          color = textColor
+  )
   Spacer(modifier = Modifier.height(4.dp))
 }
 
@@ -244,8 +258,8 @@ private fun RenderBulletList(bulletList: BulletList, textColor: Color) {
         ) {
           Text("•", color = textColor, style = MaterialTheme.typography.bodyLarge)
           Spacer(modifier = Modifier.width(8.dp))
-          Text(
-                  text = annotated,
+          ClickableMarkdownText(
+                  annotated = annotated,
                   style = MaterialTheme.typography.bodyLarge,
                   color = textColor,
                   modifier = Modifier.weight(1f)
@@ -277,8 +291,8 @@ private fun RenderOrderedList(orderedList: OrderedList, textColor: Color) {
                   style = MaterialTheme.typography.bodyLarge,
                   modifier = Modifier.width(24.dp)
           )
-          Text(
-                  text = annotated,
+          ClickableMarkdownText(
+                  annotated = annotated,
                   style = MaterialTheme.typography.bodyLarge,
                   color = textColor,
                   modifier = Modifier.weight(1f)
@@ -407,6 +421,38 @@ private fun buildInlineAnnotatedString(node: Node, textColor: Color) = buildAnno
   appendInlineNodes(node, textColor)
 }
 
+@Composable
+private fun ClickableMarkdownText(
+        annotated: AnnotatedString,
+        style: TextStyle,
+        color: Color,
+        modifier: Modifier = Modifier,
+        fontWeight: FontWeight? = null,
+        maxLines: Int = Int.MAX_VALUE,
+        overflow: TextOverflow = TextOverflow.Clip
+) {
+  val uriHandler = LocalUriHandler.current
+  val textStyle =
+          if (fontWeight != null) style.copy(color = color, fontWeight = fontWeight)
+          else style.copy(color = color)
+  ClickableText(
+          text = annotated,
+          style = textStyle,
+          modifier = modifier,
+          maxLines = maxLines,
+          overflow = overflow,
+          onClick = { offset ->
+            annotated.getStringAnnotations("URL", offset, offset).firstOrNull()?.let {
+              try {
+                uriHandler.openUri(it.item)
+              } catch (e: Exception) {
+                Log.e(TAG, "打开链接失败: ${it.item}")
+              }
+            }
+          }
+  )
+}
+
 private fun androidx.compose.ui.text.AnnotatedString.Builder.appendInlineNodes(
         node: Node,
         textColor: Color
@@ -440,9 +486,12 @@ private fun androidx.compose.ui.text.AnnotatedString.Builder.appendInlineNodes(
         }
       }
       is Link -> {
-        withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
+        val url = child.destination ?: ""
+        pushStringAnnotation(tag = "URL", annotation = url)
+        withStyle(SpanStyle(color = Color(0xFF1A73E8), textDecoration = TextDecoration.Underline)) {
           appendInlineNodes(child, textColor)
         }
+        pop()
       }
       is SoftLineBreak -> append(" ")
       is HardLineBreak -> append("\n")

@@ -80,6 +80,7 @@
     <string name="editor_insert_numbered">Numbered List</string>
     <string name="editor_insert_bulleted">Bulleted List</string>
     <string name="editor_insert_math">Math Block</string>
+    <string name="editor_insert_link">Link / URL</string>
     <string name="editor_color_monet">Monet Palette</string>
     <string name="editor_format_title">Text Format</string>
     <string name="editor_format_bold">Bold</string>

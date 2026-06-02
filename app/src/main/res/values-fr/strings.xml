@@ -80,6 +80,7 @@
     <string name="editor_insert_numbered">Liste numérotée</string>
     <string name="editor_insert_bulleted">Liste à puces</string>
     <string name="editor_insert_math">Bloc mathématique</string>
+    <string name="editor_insert_link">Lien / URL</string>
     <string name="editor_color_monet">Palette Monet</string>
     <string name="editor_format_title">Format du texte</string>
     <string name="editor_format_bold">Gras</string>

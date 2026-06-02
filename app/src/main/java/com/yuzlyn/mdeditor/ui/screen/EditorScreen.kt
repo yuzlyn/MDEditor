@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Functions
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PushPin
@@ -576,6 +577,15 @@ private fun InsertSheet(
               label = stringResource(R.string.editor_insert_math)
       ) {
         insertAtCursor(textFieldValue, "$$\n\n$$", onTextFieldUpdate)
+        scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
+      }
+      SheetItem(
+              icon = {
+                Icon(Icons.Default.Link, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+              },
+              label = stringResource(R.string.editor_insert_link)
+      ) {
+        insertAtCursor(textFieldValue, "[title](url)", onTextFieldUpdate)
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
       }
       Spacer(modifier = Modifier.height(16.dp))

@@ -80,6 +80,7 @@
     <string name="editor_insert_numbered">數字分段</string>
     <string name="editor_insert_bulleted">無數字分段</string>
     <string name="editor_insert_math">數學公式區塊</string>
+    <string name="editor_insert_link">連結 / 網址</string>
     <string name="editor_color_monet">莫奈色系</string>
     <string name="editor_format_title">文字格式</string>
     <string name="editor_format_bold">粗體</string>
