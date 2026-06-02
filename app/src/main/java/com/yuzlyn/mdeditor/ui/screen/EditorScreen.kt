@@ -78,8 +78,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -122,10 +120,8 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   var showRenameDialog by remember { mutableStateOf(false) }
   val focusRequester = remember { FocusRequester() }
   val editorScrollState = rememberScrollState()
-  val keyboardController = LocalSoftwareKeyboardController.current
-  val windowInfo = LocalWindowInfo.current
-  val scope = rememberCoroutineScope()
   var scrollRatio by remember { mutableStateOf(0f) }
+  var pendingScrollRestore by remember { mutableStateOf(false) }
   var cursorLineY by remember { mutableStateOf(0f) }
 
   LaunchedEffect(noteId) { focusRequester.requestFocus() }
@@ -138,40 +134,41 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
     }
   }
 
-  LaunchedEffect(isPreviewMode) {
-    val maxScroll = editorScrollState.maxValue
-    if (maxScroll > 0 && scrollRatio > 0f) {
-      val targetOffset =
-              ((scrollRatio * maxScroll).toInt()).let {
-                if (it < 0) 0 else if (it > maxScroll) maxScroll else it
-              }
-      Log.d(TAG, "切换模式，锁定滚动百分比：$scrollRatio → 新模式位置=$targetOffset")
-      editorScrollState.scrollTo(targetOffset)
+  LaunchedEffect(isPreviewMode) { pendingScrollRestore = true }
+
+  LaunchedEffect(editorScrollState.maxValue, pendingScrollRestore) {
+    if (pendingScrollRestore && editorScrollState.maxValue > 0 && scrollRatio > 0f) {
+      val ms = editorScrollState.maxValue
+      val target = ((scrollRatio * ms).toInt()).let { if (it < 0) 0 else if (it > ms) ms else it }
+      editorScrollState.scrollTo(target)
+      Log.d(TAG, "锚定: ratio=$scrollRatio, target=$target, max=$ms")
+      pendingScrollRestore = false
     }
   }
 
-  LaunchedEffect(cursorLineY) {
-    if (cursorLineY > 0f && !isPreviewMode && windowInfo.isWindowFocused) {
-      val viewportHeight = editorScrollState.viewportSize
-      if (viewportHeight > 0) {
-        val maxScroll = editorScrollState.maxValue
-        val centerOffset =
-                ((cursorLineY - viewportHeight / 2).toInt()).let {
-                  if (it < 0) 0 else if (it > maxScroll) maxScroll else it
-                }
-        Log.d(
-                TAG,
-                "键盘弹起，光标激活居中：offset=$centerOffset, cursorY=$cursorLineY, viewport=$viewportHeight"
-        )
-        editorScrollState.animateScrollTo(
-                centerOffset,
-                androidx.compose.animation.core.spring(
-                        dampingRatio =
-                                androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                        stiffness = androidx.compose.animation.core.Spring.StiffnessLow
-                )
-        )
-      }
+  LaunchedEffect(Unit) {
+    while (true) {
+      kotlinx.coroutines.delay(200)
+      if (isPreviewMode) continue
+      val cy = cursorLineY
+      if (cy <= 0f) continue
+      val scrollTop = editorScrollState.value
+      val vp = editorScrollState.viewportSize
+      val ms = editorScrollState.maxValue
+      if (vp <= 0 || ms <= 0) continue
+      val cursorViewportY = cy - scrollTop
+      if (cursorViewportY < vp * 0.4f) continue
+      val centerOffset =
+              ((cy - vp * 0.5f).toInt()).let { if (it < 0) 0 else if (it > ms) ms else it }
+      Log.d(TAG, "光标居中: offset=$centerOffset, cursorY=$cy, scrollTop=$scrollTop, vp=$vp")
+      editorScrollState.animateScrollTo(
+              centerOffset,
+              androidx.compose.animation.core.spring(
+                      dampingRatio =
+                              androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                      stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+              )
+      )
     }
   }
 
@@ -292,8 +289,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
                         viewModel.updateNoteInMemory(noteId, newValue.text)
                       },
                       onTextLayout = { layoutResult ->
-                        val cursorRect = layoutResult.getCursorRect(textFieldValue.selection.start)
-                        cursorLineY = cursorRect.top
+                        cursorLineY = layoutResult.getCursorRect(textFieldValue.selection.start).top
                       },
                       modifier = Modifier.fillMaxWidth(),
                       textStyle =
