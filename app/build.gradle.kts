@@ -40,6 +40,8 @@ dependencies {
   implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.lifecycle.viewmodel.compose)
   implementation(libs.androidx.documentfile)
+  implementation("org.commonmark:commonmark:0.21.0")
+  implementation("org.commonmark:commonmark-ext-gfm-tables:0.21.0")
   testImplementation(libs.junit)
   androidTestImplementation(platform(libs.androidx.compose.bom))
   androidTestImplementation(libs.androidx.compose.ui.test.junit4)

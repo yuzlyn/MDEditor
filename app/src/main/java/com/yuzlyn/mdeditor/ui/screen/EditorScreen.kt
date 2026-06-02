@@ -229,7 +229,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
                                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
           if (isPreviewMode) {
-            PreviewContent(markdown = textFieldValue.text, textColor = onSurfaceText)
+            MarkdownPreview(markdown = textFieldValue.text, textColor = onSurfaceText)
           } else {
             BasicTextField(
                     value = textFieldValue,
@@ -305,115 +305,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   }
 }
 
-@Composable
-private fun PreviewContent(markdown: String, textColor: Color) {
-  Column(
-          modifier =
-                  Modifier.verticalScroll(rememberScrollState())
-                          .fillMaxSize()
-                          .padding(horizontal = 16.dp)
-  ) {
-    if (markdown.isBlank()) {
-      Text(
-              stringResource(R.string.editor_preview_empty),
-              style = MaterialTheme.typography.bodyLarge,
-              color = textColor.copy(alpha = 0.38f)
-      )
-      return@Column
-    }
-    val lines = markdown.split("\n")
-    var inCodeBlock = false
-    for (line in lines) {
-      when {
-        line.startsWith("```") -> {
-          inCodeBlock = !inCodeBlock
-          Spacer(modifier = Modifier.height(4.dp))
-        }
-        inCodeBlock -> {
-          Text(
-                  "  $line",
-                  style = MaterialTheme.typography.bodyMedium,
-                  color = textColor.copy(alpha = 0.7f),
-                  modifier =
-                          Modifier.fillMaxWidth()
-                                  .background(
-                                          textColor.copy(alpha = 0.08f),
-                                          RoundedCornerShape(4.dp)
-                                  )
-                                  .padding(8.dp)
-          )
-        }
-        line.startsWith("###### ") ->
-                Text(
-                        line.removePrefix("###### "),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor.copy(alpha = 0.7f)
-                )
-        line.startsWith("##### ") ->
-                Text(
-                        line.removePrefix("##### "),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor.copy(alpha = 0.8f)
-                )
-        line.startsWith("#### ") ->
-                Text(
-                        line.removePrefix("#### "),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor
-                )
-        line.startsWith("### ") ->
-                Text(
-                        line.removePrefix("### "),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor
-                )
-        line.startsWith("## ") ->
-                Text(
-                        line.removePrefix("## "),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor
-                )
-        line.startsWith("# ") ->
-                Text(
-                        line.removePrefix("# "),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor
-                )
-        line.startsWith("- ") || line.startsWith("* ") -> {
-          Row(modifier = Modifier.padding(start = 8.dp)) {
-            Text("•", color = textColor)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                    line.removePrefix("- ").removePrefix("* "),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = textColor
-            )
-          }
-        }
-        line.startsWith("> ") -> {
-          Row(modifier = Modifier.padding(start = 4.dp)) {
-            Box(Modifier.width(3.dp).height(20.dp).background(textColor.copy(alpha = 0.4f)))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                    line.removePrefix("> "),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = textColor.copy(alpha = 0.8f)
-            )
-          }
-        }
-        line.trim().isBlank() -> Spacer(modifier = Modifier.height(8.dp))
-        else -> Text(line, style = MaterialTheme.typography.bodyLarge, color = textColor)
-      }
-      Spacer(modifier = Modifier.height(2.dp))
-    }
-  }
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
