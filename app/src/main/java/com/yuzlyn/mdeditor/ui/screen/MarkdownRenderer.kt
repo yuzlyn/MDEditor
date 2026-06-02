@@ -310,40 +310,44 @@ private fun RenderTable(tableBlock: TableBlock, textColor: Color) {
 
   Log.d(TAG, "成功渲染表格，行数：${allRows.size}，列数：$colCount")
 
+  val colWidths = remember(allRows) {
+    val widths = IntArray(colCount)
+    for (row in allRows) {
+      for (c in 0 until minOf(colCount, row.size)) {
+        val len = row[c].length
+        if (len > widths[c]) widths[c] = len
+      }
+    }
+    widths.map { chars ->
+      (minOf(maxOf(chars, 6), 30) * 11).dp
+    }
+  }
+
   Spacer(modifier = Modifier.height(8.dp))
   Box(modifier = Modifier.horizontalScroll(rememberScrollState())) {
     Column {
       allRows.forEachIndexed { rowIdx, cells ->
         val isHeader = rowIdx < headers.size
         Row {
-          cells.forEachIndexed { colIdx, cellText ->
+          for (c in 0 until colCount) {
+            val cellText = if (c < cells.size) cells[c] else ""
             val bgColor =
-                    if (isHeader) MaterialTheme.colorScheme.surfaceContainerHigh
-                    else Color.Transparent
+              if (isHeader) MaterialTheme.colorScheme.surfaceContainerHigh
+              else Color.Transparent
             Box(
-                    modifier =
-                            Modifier.widthIn(min = 80.dp, max = 200.dp)
-                                    .background(bgColor)
-                                    .border(1.dp, textColor.copy(alpha = 0.15f))
-                                    .padding(horizontal = 8.dp, vertical = 6.dp)
+              modifier =
+              Modifier
+                .width(colWidths[c])
+                .background(bgColor)
+                .border(1.dp, textColor.copy(alpha = 0.15f))
+                .padding(horizontal = 8.dp, vertical = 6.dp)
             ) {
               Text(
-                      text = cellText,
-                      style = MaterialTheme.typography.bodySmall,
-                      fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
-                      color = textColor
+                text = cellText,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = if (isHeader) FontWeight.Bold else FontWeight.Normal,
+                color = textColor
               )
-            }
-          }
-          val missing = colCount - cells.size
-          if (missing > 0) {
-            repeat(missing) {
-              Box(
-                      modifier =
-                              Modifier.widthIn(min = 80.dp, max = 200.dp)
-                                      .border(1.dp, textColor.copy(alpha = 0.15f))
-                                      .padding(horizontal = 8.dp, vertical = 6.dp)
-              ) { Text("", style = MaterialTheme.typography.bodySmall) }
             }
           }
         }
