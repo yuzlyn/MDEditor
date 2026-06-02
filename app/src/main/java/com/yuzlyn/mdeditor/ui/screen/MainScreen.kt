@@ -10,6 +10,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -55,6 +56,8 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.ViewStream
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Delete
@@ -1122,9 +1125,19 @@ private fun NoteListItem(
         onLongClick: () -> Unit,
         modifier: Modifier = Modifier
 ) {
-  val cardTextColor = MonetPalette.textColorFor(note.backgroundColor)
-  val cardTextVariant = cardTextColor.copy(alpha = 0.6f)
-  val cardOutline = cardTextColor.copy(alpha = 0.35f)
+  val displayTitle = note.displayTitle(stringResource(R.string.untitled))
+  val firstLine = note.content.lines().firstOrNull()?.take(80) ?: ""
+  val secondLine =
+          if (note.content.isNotBlank()) note.content.lines().drop(1).joinToString(" ").take(80)
+          else ""
+  val textColor = MonetPalette.textColorFor(note.backgroundColor)
+  val variantColor = textColor.copy(alpha = 0.6f)
+  val mutedColor = textColor.copy(alpha = 0.38f)
+  val avatarBg =
+          MonetPalette.bgColorFor(note.backgroundColor, MaterialTheme.colorScheme.primaryContainer)
+  val initial = displayTitle.firstOrNull()?.uppercase() ?: "?"
+  val isStarred = note.isPinned
+  val context = LocalContext.current
 
   Surface(
           onClick = onClick,
@@ -1135,48 +1148,112 @@ private fun NoteListItem(
                                           Modifier.border(
                                                   2.dp,
                                                   MaterialTheme.colorScheme.primary,
-                                                  RoundedCornerShape(12.dp)
+                                                  RoundedCornerShape(0.dp)
                                           )
                                   else Modifier
                           ),
-          shape = RoundedCornerShape(12.dp),
-          color = MonetPalette.bgColorFor(note.backgroundColor, MaterialTheme.colorScheme.surface),
-          tonalElevation = 1.dp
+          shape = RoundedCornerShape(0.dp),
+          color = MonetPalette.bgColorFor(note.backgroundColor, MaterialTheme.colorScheme.surface)
   ) {
     Row(
             modifier =
                     Modifier.fillMaxWidth()
                             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.Top
     ) {
-      Column(modifier = Modifier.weight(1f)) {
-        val displayTitle = note.displayTitle(stringResource(R.string.untitled))
+      Box(
+              modifier = Modifier.size(40.dp).background(avatarBg, shape = CircleShape),
+              contentAlignment = Alignment.Center
+      ) {
         Text(
-                text = displayTitle,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-                color = cardTextColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                text = initial,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = textColor
         )
-        if (note.content.isNotBlank()) {
+      }
+
+      Spacer(modifier = Modifier.width(16.dp))
+
+      Column(modifier = Modifier.weight(1f)) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+          Text(
+                  text = displayTitle,
+                  style = MaterialTheme.typography.titleSmall,
+                  fontWeight = FontWeight.SemiBold,
+                  color = textColor,
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis,
+                  modifier = Modifier.weight(1f, fill = false)
+          )
+          Spacer(modifier = Modifier.width(8.dp))
+          Text(
+                  text = viewModel.getDateFormatted(note.lastModified),
+                  style = MaterialTheme.typography.bodySmall,
+                  color = mutedColor,
+                  maxLines = 1
+          )
+        }
+
+        if (firstLine.isNotBlank()) {
           Spacer(modifier = Modifier.height(2.dp))
           Text(
-                  text = note.content,
-                  style = MaterialTheme.typography.bodySmall,
-                  color = cardTextVariant,
+                  text = firstLine,
+                  style = MaterialTheme.typography.bodyMedium,
+                  color = variantColor,
                   maxLines = 1,
                   overflow = TextOverflow.Ellipsis
           )
         }
+
+        if (secondLine.isNotBlank()) {
+          Spacer(modifier = Modifier.height(2.dp))
+          Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                    text = secondLine,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = mutedColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            IconButton(
+                    onClick = {
+                      NoteStorage.togglePin(note.id)
+                      viewModel.saveNoteMetadataToDisk(context, note.id)
+                    },
+                    modifier = Modifier.size(32.dp)
+            ) {
+              Icon(
+                      if (isStarred) Icons.Default.Star else Icons.Default.StarBorder,
+                      contentDescription = if (isStarred) "取消置顶" else "置顶",
+                      tint = if (isStarred) MaterialTheme.colorScheme.primary else mutedColor,
+                      modifier = Modifier.size(18.dp)
+              )
+            }
+          }
+        } else {
+          Spacer(modifier = Modifier.height(2.dp))
+          Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            IconButton(
+                    onClick = {
+                      NoteStorage.togglePin(note.id)
+                      viewModel.saveNoteMetadataToDisk(context, note.id)
+                    },
+                    modifier = Modifier.size(32.dp)
+            ) {
+              Icon(
+                      if (isStarred) Icons.Default.Star else Icons.Default.StarBorder,
+                      contentDescription = if (isStarred) "取消置顶" else "置顶",
+                      tint = if (isStarred) MaterialTheme.colorScheme.primary else mutedColor,
+                      modifier = Modifier.size(18.dp)
+              )
+            }
+          }
+        }
       }
-      Spacer(modifier = Modifier.width(12.dp))
-      Text(
-              text = viewModel.getDateFormatted(note.lastModified),
-              style = MaterialTheme.typography.labelSmall,
-              color = cardOutline
-      )
     }
   }
 }
