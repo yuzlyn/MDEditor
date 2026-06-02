@@ -1141,7 +1141,8 @@ private fun NoteListItem(
         modifier: Modifier = Modifier
 ) {
   val displayTitle = note.displayTitle(stringResource(R.string.untitled))
-  val firstLine = note.content.lines().firstOrNull()?.take(80) ?: ""
+  val rawFirstLine = note.content.lines().firstOrNull() ?: ""
+  val firstLine = rawFirstLine.take(80)
   val secondLine =
           if (note.content.isNotBlank()) note.content.lines().drop(1).joinToString(" ").take(80)
           else ""
@@ -1204,7 +1205,7 @@ private fun NoteListItem(
           )
         }
 
-        if (firstLine.isNotBlank()) {
+        if (firstLine.isNotBlank() && displayTitle != rawFirstLine) {
           Spacer(modifier = Modifier.height(2.dp))
           Text(
                   text = firstLine,
