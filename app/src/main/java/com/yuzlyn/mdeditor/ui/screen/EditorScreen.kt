@@ -123,7 +123,6 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   val editorScrollState = rememberScrollState()
   var scrollRatio by remember { mutableStateOf(0f) }
   var pendingScrollRestore by remember { mutableStateOf(false) }
-  var cursorLineY by remember { mutableStateOf(0f) }
   val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
   LaunchedEffect(noteId) { focusRequester.requestFocus() }
@@ -150,22 +149,21 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
 
   LaunchedEffect(isImeVisible, isPreviewMode, textFieldValue.selection) {
     if (!isImeVisible || isPreviewMode) return@LaunchedEffect
-    kotlinx.coroutines.delay(180)
-    val cy = cursorLineY
-    if (cy <= 0f) return@LaunchedEffect
-    val scrollTop = editorScrollState.value.toFloat()
-    val vp = editorScrollState.viewportSize.toFloat()
-    val ms = editorScrollState.maxValue.toFloat()
-    if (vp <= 0f || ms <= 0f) return@LaunchedEffect
-    val cursorInViewport = cy - scrollTop
-    if (cursorInViewport < vp * 0.45f) return@LaunchedEffect
-    val targetOffset =
-            ((cy - vp * 0.3f).toInt()).let {
-              if (it < 0) 0 else if (it > ms.toInt()) ms.toInt() else it
-            }
-    Log.d(TAG, "键盘弹起，光标被遮挡，补偿滚动：target=$targetOffset, cursorY=$cy, vp=$vp")
+    kotlinx.coroutines.delay(200)
+    val textLen = textFieldValue.text.length
+    if (textLen == 0) return@LaunchedEffect
+    val selStart = textFieldValue.selection.start
+    val ratio = selStart.toFloat() / textLen.toFloat()
+    if (ratio < 0.55f) {
+      Log.d(TAG, "光标在上半部(ratio=$ratio)，不补偿")
+      return@LaunchedEffect
+    }
+    val ms = editorScrollState.maxValue
+    if (ms <= 0) return@LaunchedEffect
+    val target = ((ratio * ms).toInt()).let { if (it < 0) 0 else if (it > ms) ms else it }
+    Log.d(TAG, "键盘弹起，光标在底部区域(ratio=$ratio)，补偿滚动到=$target")
     editorScrollState.animateScrollTo(
-            targetOffset,
+            target,
             androidx.compose.animation.core.spring(
                     dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
                     stiffness = androidx.compose.animation.core.Spring.StiffnessLow
@@ -288,9 +286,6 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
                       onValueChange = { newValue ->
                         textFieldValue = newValue
                         viewModel.updateNoteInMemory(noteId, newValue.text)
-                      },
-                      onTextLayout = { layoutResult ->
-                        cursorLineY = layoutResult.getCursorRect(textFieldValue.selection.start).top
                       },
                       modifier = Modifier.fillMaxWidth(),
                       textStyle =
