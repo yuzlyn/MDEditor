@@ -506,7 +506,10 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                 )
-                if (selectedIds.size == 1 && currentScreen != DrawerScreen.ARCHIVE) {
+                if (selectedIds.size == 1 &&
+                                currentScreen != DrawerScreen.ARCHIVE &&
+                                currentScreen != DrawerScreen.TRASH
+                ) {
                   IconButton(onClick = { showRenameDialog = true }) {
                     Icon(
                             Icons.Default.DriveFileRenameOutline,
