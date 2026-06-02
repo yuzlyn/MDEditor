@@ -148,6 +148,13 @@ private enum class SortOrder(val labelResId: Int) {
   MODIFIED(R.string.sort_modified)
 }
 
+private enum class RemovingAction {
+  DELETE,
+  ARCHIVE,
+  RESTORE,
+  PERMANENT_DELETE
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
@@ -163,6 +170,7 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
 
   var selectedIds by remember { mutableStateOf(setOf<String>()) }
   var deletingIds by remember { mutableStateOf(setOf<String>()) }
+  var removingAction by remember { mutableStateOf(RemovingAction.DELETE) }
   var showMultiColorSheet by remember { mutableStateOf(false) }
   var showRenameDialog by remember { mutableStateOf(false) }
   var isGridView by rememberSaveable { mutableStateOf(true) }
@@ -198,7 +206,13 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
   LaunchedEffect(deletingIds) {
     if (deletingIds.isNotEmpty()) {
       kotlinx.coroutines.delay(350)
-      deletingIds.forEach { viewModel.deleteNote(context, it) }
+      when (removingAction) {
+        RemovingAction.DELETE -> deletingIds.forEach { viewModel.deleteNote(context, it) }
+        RemovingAction.ARCHIVE -> deletingIds.forEach { viewModel.archiveNote(context, it) }
+        RemovingAction.RESTORE -> deletingIds.forEach { viewModel.restoreNote(context, it) }
+        RemovingAction.PERMANENT_DELETE ->
+                deletingIds.forEach { viewModel.permanentlyDeleteNote(context, it) }
+      }
       deletingIds = emptySet()
     }
   }
@@ -230,12 +244,14 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
 
   fun batchArchive() {
     val ids = selectedIds
-    ids.forEach { viewModel.archiveNote(context, it) }
+    removingAction = RemovingAction.ARCHIVE
+    deletingIds = ids
     exitSelectionMode()
   }
 
   fun batchDelete() {
     val ids = selectedIds
+    removingAction = RemovingAction.DELETE
     deletingIds = ids
     exitSelectionMode()
   }
@@ -249,13 +265,15 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
 
   fun batchRestore() {
     val ids = selectedIds
-    ids.forEach { viewModel.restoreNote(context, it) }
+    removingAction = RemovingAction.RESTORE
+    deletingIds = ids
     exitSelectionMode()
   }
 
   fun batchPermanentDelete() {
     val ids = selectedIds
-    ids.forEach { viewModel.permanentlyDeleteNote(context, it) }
+    removingAction = RemovingAction.PERMANENT_DELETE
+    deletingIds = ids
     exitSelectionMode()
   }
 
