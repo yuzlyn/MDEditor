@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
     val primaryColor =
             when (val cfg = ThemeConfig.configFlow.value) {
               is ThemeConfig.CustomColor -> cfg.colorLong.toInt()
-              else -> android.graphics.Color.parseColor("#6750A4")
+              else -> android.graphics.Color.parseColor("#4285F4")
             }
     window.decorView.setBackgroundColor(primaryColor)
   }
