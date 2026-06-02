@@ -75,7 +75,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -120,8 +119,6 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   val editorScrollState = rememberScrollState()
   var scrollRatio by remember { mutableStateOf(0f) }
   var pendingScrollRestore by remember { mutableStateOf(false) }
-  var hasInitialCompensationRun by remember { mutableStateOf(false) }
-  val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
   LaunchedEffect(isExiting) {
     if (isExiting) {
@@ -141,37 +138,6 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
       Log.d(TAG, "锚定: ratio=$scrollRatio, target=$target, max=$ms")
       pendingScrollRestore = false
     }
-  }
-
-  LaunchedEffect(isImeVisible, isPreviewMode, textFieldValue.selection) {
-    if (!isImeVisible || isPreviewMode) {
-      hasInitialCompensationRun = false
-      return@LaunchedEffect
-    }
-    if (!hasInitialCompensationRun) {
-      hasInitialCompensationRun = true
-      return@LaunchedEffect
-    }
-    kotlinx.coroutines.delay(180)
-    val textLen = textFieldValue.text.length
-    if (textLen == 0) return@LaunchedEffect
-    val selStart = textFieldValue.selection.start
-    val ratio = selStart.toFloat() / textLen.toFloat()
-    val ms = editorScrollState.maxValue
-    val vp = editorScrollState.viewportSize
-    if (ms <= 0 || vp <= 0) return@LaunchedEffect
-    val target =
-            (((ratio * (ms + vp)) - vp * 0.6f).toInt()).let {
-              if (it < 0) 0 else if (it > ms) ms else it
-            }
-    Log.d(TAG, "键盘补偿: ratio=$ratio, target=$target, ms=$ms, vp=$vp")
-    editorScrollState.animateScrollTo(
-            target,
-            androidx.compose.animation.core.spring(
-                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                    stiffness = androidx.compose.animation.core.Spring.StiffnessLow
-            )
-    )
   }
 
   BackHandler { if (!isExiting) isExiting = true }
