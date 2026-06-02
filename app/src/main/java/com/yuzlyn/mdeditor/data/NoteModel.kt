@@ -16,10 +16,22 @@ data class NoteModel(
         val isTitleCustom: Boolean = false
 ) {
   fun displayTitle(defaultUntitled: String): String {
-    return if (isTitleCustom || title.isNotBlank()) {
-      title.ifBlank { content.lines().firstOrNull()?.take(50) ?: defaultUntitled }
-    } else {
-      content.lines().firstOrNull()?.take(50) ?: defaultUntitled
-    }
+    val raw =
+            if (isTitleCustom || title.isNotBlank()) {
+              title.ifBlank { content.lines().firstOrNull()?.take(50) ?: defaultUntitled }
+            } else {
+              content.lines().firstOrNull()?.take(50) ?: defaultUntitled
+            }
+    return raw.stripMarkdown().ifBlank { defaultUntitled }
   }
+}
+
+private fun String.stripMarkdown(): String {
+  var s = this
+  s = s.replace(Regex("^#{1,6}\\s+"), "")
+  s = s.replace("**", "").replace("__", "")
+  s = s.replace("*", "").replace("_", "")
+  s = s.replace("`", "")
+  s = s.replace("~~", "")
+  return s.trim()
 }
