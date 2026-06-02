@@ -77,6 +77,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -123,6 +124,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   var scrollRatio by remember { mutableStateOf(0f) }
   var pendingScrollRestore by remember { mutableStateOf(false) }
   var cursorLineY by remember { mutableStateOf(0f) }
+  val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
   LaunchedEffect(noteId) { focusRequester.requestFocus() }
 
@@ -146,30 +148,29 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
     }
   }
 
-  LaunchedEffect(Unit) {
-    while (true) {
-      kotlinx.coroutines.delay(200)
-      if (isPreviewMode) continue
-      val cy = cursorLineY
-      if (cy <= 0f) continue
-      val scrollTop = editorScrollState.value
-      val vp = editorScrollState.viewportSize
-      val ms = editorScrollState.maxValue
-      if (vp <= 0 || ms <= 0) continue
-      val cursorViewportY = cy - scrollTop
-      if (cursorViewportY < vp * 0.4f) continue
-      val centerOffset =
-              ((cy - vp * 0.5f).toInt()).let { if (it < 0) 0 else if (it > ms) ms else it }
-      Log.d(TAG, "光标居中: offset=$centerOffset, cursorY=$cy, scrollTop=$scrollTop, vp=$vp")
-      editorScrollState.animateScrollTo(
-              centerOffset,
-              androidx.compose.animation.core.spring(
-                      dampingRatio =
-                              androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
-                      stiffness = androidx.compose.animation.core.Spring.StiffnessLow
-              )
-      )
-    }
+  LaunchedEffect(isImeVisible, isPreviewMode, textFieldValue.selection) {
+    if (!isImeVisible || isPreviewMode) return@LaunchedEffect
+    kotlinx.coroutines.delay(180)
+    val cy = cursorLineY
+    if (cy <= 0f) return@LaunchedEffect
+    val scrollTop = editorScrollState.value.toFloat()
+    val vp = editorScrollState.viewportSize.toFloat()
+    val ms = editorScrollState.maxValue.toFloat()
+    if (vp <= 0f || ms <= 0f) return@LaunchedEffect
+    val cursorInViewport = cy - scrollTop
+    if (cursorInViewport < vp * 0.45f) return@LaunchedEffect
+    val targetOffset =
+            ((cy - vp * 0.3f).toInt()).let {
+              if (it < 0) 0 else if (it > ms.toInt()) ms.toInt() else it
+            }
+    Log.d(TAG, "键盘弹起，光标被遮挡，补偿滚动：target=$targetOffset, cursorY=$cy, vp=$vp")
+    editorScrollState.animateScrollTo(
+            targetOffset,
+            androidx.compose.animation.core.spring(
+                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+                    stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+            )
+    )
   }
 
   BackHandler { if (!isExiting) isExiting = true }
