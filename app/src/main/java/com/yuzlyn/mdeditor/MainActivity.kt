@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() {
     applyLocale(this, getSavedLocale(this))
     ThemeConfig.load(this)
     super.onCreate(savedInstanceState)
+    applySplashBackground()
     enableEdgeToEdge()
     setContent {
       MDEditorTheme {
@@ -84,5 +85,14 @@ class MainActivity : ComponentActivity() {
   override fun onResume() {
     super.onResume()
     applyLocale(this, getSavedLocale(this))
+  }
+
+  private fun applySplashBackground() {
+    val primaryColor =
+            when (val cfg = ThemeConfig.configFlow.value) {
+              is ThemeConfig.CustomColor -> cfg.colorLong.toInt()
+              else -> android.graphics.Color.parseColor("#6750A4")
+            }
+    window.decorView.setBackgroundColor(primaryColor)
   }
 }
