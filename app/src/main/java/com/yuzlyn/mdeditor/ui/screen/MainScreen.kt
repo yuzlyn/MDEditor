@@ -1159,6 +1159,7 @@ private fun NoteCard(
   Card(
           modifier =
                   Modifier.fillMaxWidth()
+                          .combinedClickable(onClick = onClick, onLongClick = onLongClick)
                           .then(
                                   if (isSelected)
                                           Modifier.border(
@@ -1173,15 +1174,10 @@ private fun NoteCard(
                                                   MaterialTheme.shapes.large
                                           )
                           ),
-          onClick = onClick,
           shape = MaterialTheme.shapes.large,
           colors = CardDefaults.cardColors(containerColor = cardBg)
   ) {
-    Column(
-            modifier =
-                    Modifier.padding(12.dp)
-                            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-    ) {
+    Column(modifier = Modifier.padding(12.dp)) {
       val displayTitle = note.displayTitle(stringResource(R.string.untitled))
       if (displayTitle.isNotBlank()) {
         Text(
@@ -1258,8 +1254,11 @@ private fun NoteListItem(
                   )
 
   Card(
-          onClick = onClick,
-          modifier = modifier.fillMaxWidth().sizeIn(minHeight = 64.dp).then(borderMod),
+          modifier =
+                  modifier.fillMaxWidth()
+                          .sizeIn(minHeight = 64.dp)
+                          .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                          .then(borderMod),
           shape = RoundedCornerShape(12.dp),
           colors =
                   CardDefaults.cardColors(
@@ -1272,10 +1271,7 @@ private fun NoteListItem(
                   )
   ) {
     Row(
-            modifier =
-                    Modifier.fillMaxWidth()
-                            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.Top
     ) {
       Column(modifier = Modifier.weight(1f)) {
