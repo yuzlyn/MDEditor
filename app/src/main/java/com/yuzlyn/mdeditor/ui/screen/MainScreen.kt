@@ -10,7 +10,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -56,8 +55,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.ViewStream
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Delete
@@ -67,10 +64,10 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
@@ -1017,15 +1014,20 @@ private fun DrawerFlyInItem(
 
 @Composable
 private fun NotebookCard(name: String, count: Int, onClick: () -> Unit) {
-  ElevatedCard(
+  Card(
           onClick = onClick,
-          modifier = Modifier.fillMaxWidth(),
+          modifier =
+                  Modifier.fillMaxWidth()
+                          .border(
+                                  0.5.dp,
+                                  MaterialTheme.colorScheme.outlineVariant,
+                                  MaterialTheme.shapes.large
+                          ),
           shape = MaterialTheme.shapes.large,
           colors =
-                  CardDefaults.elevatedCardColors(
+                  CardDefaults.cardColors(
                           containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                  ),
-          elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+                  )
   ) {
     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
       Icon(
@@ -1071,7 +1073,7 @@ private fun NoteCard(
   val cardTextVariant = cardTextColor.copy(alpha = 0.65f)
   val cardOutline = cardTextColor.copy(alpha = 0.35f)
 
-  ElevatedCard(
+  Card(
           modifier =
                   Modifier.fillMaxWidth()
                           .then(
@@ -1081,12 +1083,16 @@ private fun NoteCard(
                                                   MaterialTheme.colorScheme.primary,
                                                   MaterialTheme.shapes.large
                                           )
-                                  else Modifier
+                                  else
+                                          Modifier.border(
+                                                  0.5.dp,
+                                                  MaterialTheme.colorScheme.outlineVariant,
+                                                  MaterialTheme.shapes.large
+                                          )
                           ),
           onClick = onClick,
           shape = MaterialTheme.shapes.large,
-          colors = CardDefaults.elevatedCardColors(containerColor = cardBg),
-          elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+          colors = CardDefaults.cardColors(containerColor = cardBg)
   ) {
     Column(
             modifier =
@@ -1142,13 +1148,8 @@ private fun NoteListItem(
   val textColor = MonetPalette.textColorFor(note.backgroundColor)
   val variantColor = textColor.copy(alpha = 0.6f)
   val mutedColor = textColor.copy(alpha = 0.38f)
-  val avatarBg =
-          MonetPalette.bgColorFor(note.backgroundColor, MaterialTheme.colorScheme.primaryContainer)
-  val initial = displayTitle.firstOrNull()?.uppercase() ?: "?"
-  val isStarred = note.isPinned
-  val context = LocalContext.current
 
-  Surface(
+  Card(
           onClick = onClick,
           modifier =
                   modifier.fillMaxWidth()
@@ -1159,13 +1160,21 @@ private fun NoteListItem(
                                                   MaterialTheme.colorScheme.primary,
                                                   RoundedCornerShape(12.dp)
                                           )
-                                  else Modifier
+                                  else
+                                          Modifier.border(
+                                                  0.5.dp,
+                                                  MaterialTheme.colorScheme.outlineVariant,
+                                                  RoundedCornerShape(12.dp)
+                                          )
                           ),
           shape = RoundedCornerShape(12.dp),
-          color =
-                  MonetPalette.bgColorFor(
-                          note.backgroundColor,
-                          MaterialTheme.colorScheme.surfaceContainerHigh
+          colors =
+                  CardDefaults.cardColors(
+                          containerColor =
+                                  MonetPalette.bgColorFor(
+                                          note.backgroundColor,
+                                          MaterialTheme.colorScheme.surfaceContainerHigh
+                                  )
                   )
   ) {
     Row(
@@ -1175,20 +1184,6 @@ private fun NoteListItem(
                             .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.Top
     ) {
-      Box(
-              modifier = Modifier.size(40.dp).background(avatarBg, shape = CircleShape),
-              contentAlignment = Alignment.Center
-      ) {
-        Text(
-                text = initial,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = textColor
-        )
-      }
-
-      Spacer(modifier = Modifier.width(16.dp))
-
       Column(modifier = Modifier.weight(1f)) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
           Text(
@@ -1198,7 +1193,7 @@ private fun NoteListItem(
                   color = textColor,
                   maxLines = 1,
                   overflow = TextOverflow.Ellipsis,
-                  modifier = Modifier.weight(1f, fill = false)
+                  modifier = Modifier.weight(1f)
           )
           Spacer(modifier = Modifier.width(8.dp))
           Text(
@@ -1222,49 +1217,13 @@ private fun NoteListItem(
 
         if (secondLine.isNotBlank()) {
           Spacer(modifier = Modifier.height(2.dp))
-          Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                    text = secondLine,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = mutedColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            IconButton(
-                    onClick = {
-                      NoteStorage.togglePin(note.id)
-                      viewModel.saveNoteMetadataToDisk(context, note.id)
-                    },
-                    modifier = Modifier.size(32.dp)
-            ) {
-              Icon(
-                      if (isStarred) Icons.Default.Star else Icons.Default.StarBorder,
-                      contentDescription = if (isStarred) "取消置顶" else "置顶",
-                      tint = if (isStarred) MaterialTheme.colorScheme.primary else mutedColor,
-                      modifier = Modifier.size(18.dp)
-              )
-            }
-          }
-        } else {
-          Spacer(modifier = Modifier.height(2.dp))
-          Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            IconButton(
-                    onClick = {
-                      NoteStorage.togglePin(note.id)
-                      viewModel.saveNoteMetadataToDisk(context, note.id)
-                    },
-                    modifier = Modifier.size(32.dp)
-            ) {
-              Icon(
-                      if (isStarred) Icons.Default.Star else Icons.Default.StarBorder,
-                      contentDescription = if (isStarred) "取消置顶" else "置顶",
-                      tint = if (isStarred) MaterialTheme.colorScheme.primary else mutedColor,
-                      modifier = Modifier.size(18.dp)
-              )
-            }
-          }
+          Text(
+                  text = secondLine,
+                  style = MaterialTheme.typography.bodySmall,
+                  color = mutedColor,
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis
+          )
         }
       }
     }

@@ -3,6 +3,7 @@ package com.yuzlyn.mdeditor.ui.screen
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -352,7 +353,8 @@ private fun EditorBottomBar(
                   modifier.fillMaxWidth()
                           .padding(horizontal = 16.dp, vertical = 12.dp)
                           .navigationBarsPadding()
-                          .windowInsetsPadding(WindowInsets.ime),
+                          .windowInsetsPadding(WindowInsets.ime)
+                          .border(0.5.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
           shape = CircleShape,
           color = bgColor,
           tonalElevation = 6.dp,
