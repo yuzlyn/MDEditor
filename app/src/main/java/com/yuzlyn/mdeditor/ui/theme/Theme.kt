@@ -184,97 +184,130 @@ private fun lerpColor(a: Color, b: Color, fraction: Float): Color {
   )
 }
 
-private fun customColorScheme(seedColor: Color, darkTheme: Boolean) =
-        if (darkTheme) {
-          val primary =
-                  Color(
-                          red = (seedColor.red * 0.7f + 0.3f).coerceIn(0f, 1f),
-                          green = (seedColor.green * 0.7f + 0.3f).coerceIn(0f, 1f),
-                          blue = (seedColor.blue * 0.7f + 0.3f).coerceIn(0f, 1f)
-                  )
-          val baseSurface = Color(0xFF0F0D13)
-          val tintedSurface = lerpColor(baseSurface, seedColor, 0.06f)
-          val tintedSurfaceVariant = lerpColor(baseSurface, seedColor, 0.12f)
-          val tintedOutline = lerpColor(baseSurface, seedColor, 0.35f)
-          darkColorScheme(
-                  primary = primary,
-                  onPrimary = Color(0xFF0F0D13),
-                  primaryContainer = lerpColor(baseSurface, seedColor, 0.25f),
-                  onPrimaryContainer = Color(0xFFE0E0E0),
-                  secondary = Color(0xFFCCC2DC),
-                  onSecondary = Color(0xFF332D41),
-                  secondaryContainer = lerpColor(baseSurface, seedColor, 0.15f),
-                  onSecondaryContainer = Color(0xFFE0E0E0),
-                  tertiary = Color(0xFFE8B9CC),
-                  onTertiary = Color(0xFF442C36),
-                  tertiaryContainer = lerpColor(baseSurface, seedColor, 0.18f),
-                  onTertiaryContainer = Color(0xFFE0E0E0),
-                  error = google_blue_dark_error,
-                  onError = google_blue_dark_onError,
-                  errorContainer = google_blue_dark_errorContainer,
-                  onErrorContainer = google_blue_dark_onErrorContainer,
-                  background = tintedSurface,
-                  onBackground = Color(0xFFE6E1E5),
-                  surface = tintedSurface,
-                  onSurface = Color(0xFFE6E1E5),
-                  surfaceVariant = tintedSurfaceVariant,
-                  onSurfaceVariant = Color(0xFFCAC4D0),
-                  outline = tintedOutline,
-                  outlineVariant = lerpColor(baseSurface, seedColor, 0.25f),
-                  inverseSurface = Color(0xFFE6E1E5),
-                  inverseOnSurface = Color(0xFF313033),
-                  inversePrimary = seedColor,
-                  surfaceTint = primary,
-                  surfaceContainerHighest = lerpColor(baseSurface, seedColor, 0.16f),
-                  surfaceContainerHigh = lerpColor(baseSurface, seedColor, 0.12f),
-                  surfaceContainer = lerpColor(baseSurface, seedColor, 0.09f),
-                  surfaceContainerLow = lerpColor(baseSurface, seedColor, 0.06f),
-                  surfaceContainerLowest = lerpColor(baseSurface, seedColor, 0.03f),
-          )
-        } else {
-          val baseSurface = Color.White
-          val tintedBackground = lerpColor(baseSurface, seedColor, 0.015f)
-          val tintedSurfaceLowest = lerpColor(baseSurface, seedColor, 0.03f)
-          val tintedSurfaceLow = lerpColor(baseSurface, seedColor, 0.06f)
-          val tintedSurface = lerpColor(baseSurface, seedColor, 0.09f)
-          val tintedSurfaceHigh = lerpColor(baseSurface, seedColor, 0.12f)
-          val tintedSurfaceHighest = lerpColor(baseSurface, seedColor, 0.16f)
-          lightColorScheme(
-                  primary = seedColor,
-                  onPrimary = Color.White,
-                  primaryContainer = lerpColor(baseSurface, seedColor, 0.12f),
-                  onPrimaryContainer = Color(0xFF1C1B1F),
-                  secondary = Color(0xFF625B71),
-                  onSecondary = Color.White,
-                  secondaryContainer = lerpColor(baseSurface, seedColor, 0.07f),
-                  onSecondaryContainer = Color(0xFF1C1B1F),
-                  tertiary = Color(0xFF7D5260),
-                  onTertiary = Color.White,
-                  tertiaryContainer = lerpColor(baseSurface, seedColor, 0.09f),
-                  onTertiaryContainer = Color(0xFF1C1B1F),
-                  error = google_blue_light_error,
-                  onError = google_blue_light_onError,
-                  errorContainer = google_blue_light_errorContainer,
-                  onErrorContainer = google_blue_light_onErrorContainer,
-                  background = tintedBackground,
-                  onBackground = Color(0xFF1C1B1F),
-                  surface = tintedBackground,
-                  onSurface = Color(0xFF1C1B1F),
-                  surfaceVariant = lerpColor(baseSurface, seedColor, 0.10f),
-                  onSurfaceVariant = Color(0xFF49454F),
-                  outline = Color(0xFF79747E),
-                  outlineVariant = lerpColor(baseSurface, seedColor, 0.22f),
-                  inverseSurface = Color(0xFF313033),
-                  inverseOnSurface = lerpColor(baseSurface, seedColor, 0.06f),
-                  inversePrimary = lerpColor(seedColor, Color.White, 0.3f),
-                  surfaceTint = seedColor,
-                  surfaceContainerHighest = tintedSurfaceHighest,
-                  surfaceContainerHigh = tintedSurfaceHigh,
-                  surfaceContainer = tintedSurface,
-                  surfaceContainerLow = tintedSurfaceLow,
-                  surfaceContainerLowest = tintedSurfaceLowest,
-          )
-        }
+private fun customColorScheme(
+        seedColor: Color,
+        darkTheme: Boolean
+): androidx.compose.material3.ColorScheme {
+  if (darkTheme) {
+    val baseBg = Color(0xFF0F0D13)
+    val background = lerpColor(baseBg, seedColor, 0.10f)
+    val surfaceContainerHighest = lerpColor(baseBg, seedColor, 0.20f)
+    val surfaceContainerHigh = lerpColor(baseBg, seedColor, 0.15f)
+    val surfaceContainer = lerpColor(baseBg, seedColor, 0.12f)
+    val surfaceContainerLow = lerpColor(baseBg, seedColor, 0.08f)
+    val surfaceContainerLowest = lerpColor(baseBg, seedColor, 0.04f)
+    val surfaceVariant = lerpColor(baseBg, seedColor, 0.18f)
+    return darkColorScheme(
+            primary =
+                    Color(
+                            red = (seedColor.red * 0.7f + 0.3f).coerceIn(0f, 1f),
+                            green = (seedColor.green * 0.7f + 0.3f).coerceIn(0f, 1f),
+                            blue = (seedColor.blue * 0.7f + 0.3f).coerceIn(0f, 1f)
+                    ),
+            onPrimary = Color(0xFF0F0D13),
+            primaryContainer = lerpColor(baseBg, seedColor, 0.30f),
+            onPrimaryContainer = Color(0xFFE0E0E0),
+            secondary = Color(0xFFCCC2DC),
+            onSecondary = Color(0xFF332D41),
+            secondaryContainer = lerpColor(baseBg, seedColor, 0.22f),
+            onSecondaryContainer = Color(0xFFE0E0E0),
+            tertiary = Color(0xFFE8B9CC),
+            onTertiary = Color(0xFF442C36),
+            tertiaryContainer = lerpColor(baseBg, seedColor, 0.20f),
+            onTertiaryContainer = Color(0xFFE0E0E0),
+            error = google_blue_dark_error,
+            onError = google_blue_dark_onError,
+            errorContainer = google_blue_dark_errorContainer,
+            onErrorContainer = google_blue_dark_onErrorContainer,
+            background = background,
+            onBackground = Color(0xFFE6E1E5),
+            surface = background,
+            onSurface = Color(0xFFE6E1E5),
+            surfaceVariant = surfaceVariant,
+            onSurfaceVariant = Color(0xFFCAC4D0),
+            outline = lerpColor(baseBg, seedColor, 0.40f),
+            outlineVariant = lerpColor(baseBg, seedColor, 0.28f),
+            inverseSurface = Color(0xFFE6E1E5),
+            inverseOnSurface = Color(0xFF313033),
+            inversePrimary = seedColor,
+            surfaceTint = seedColor,
+            surfaceContainerHighest = surfaceContainerHighest,
+            surfaceContainerHigh = surfaceContainerHigh,
+            surfaceContainer = surfaceContainer,
+            surfaceContainerLow = surfaceContainerLow,
+            surfaceContainerLowest = surfaceContainerLowest,
+    )
+  } else {
+    val baseBg = Color.White
+    val background = lerpColor(baseBg, seedColor, 0.10f)
+    val surfaceContainerHighest = lerpColor(baseBg, seedColor, 0.20f)
+    val surfaceContainerHigh = lerpColor(baseBg, seedColor, 0.16f)
+    val surfaceContainer = lerpColor(baseBg, seedColor, 0.12f)
+    val surfaceContainerLow = lerpColor(baseBg, seedColor, 0.08f)
+    val surfaceContainerLowest = lerpColor(baseBg, seedColor, 0.04f)
+    val surfaceVariant = lerpColor(baseBg, seedColor, 0.14f)
+    return lightColorScheme(
+            primary = seedColor,
+            onPrimary = Color.White,
+            primaryContainer = lerpColor(baseBg, seedColor, 0.16f),
+            onPrimaryContainer = Color(0xFF1C1B1F),
+            secondary = Color(0xFF625B71),
+            onSecondary = Color.White,
+            secondaryContainer = lerpColor(baseBg, seedColor, 0.10f),
+            onSecondaryContainer = Color(0xFF1C1B1F),
+            tertiary = Color(0xFF7D5260),
+            onTertiary = Color.White,
+            tertiaryContainer = lerpColor(baseBg, seedColor, 0.12f),
+            onTertiaryContainer = Color(0xFF1C1B1F),
+            error = google_blue_light_error,
+            onError = google_blue_light_onError,
+            errorContainer = google_blue_light_errorContainer,
+            onErrorContainer = google_blue_light_onErrorContainer,
+            background = background,
+            onBackground = Color(0xFF1C1B1F),
+            surface = background,
+            onSurface = Color(0xFF1C1B1F),
+            surfaceVariant = surfaceVariant,
+            onSurfaceVariant = Color(0xFF49454F),
+            outline = Color(0xFF79747E),
+            outlineVariant = lerpColor(baseBg, seedColor, 0.26f),
+            inverseSurface = Color(0xFF313033),
+            inverseOnSurface = Color(0xFFF4EFF4),
+            inversePrimary = lerpColor(seedColor, Color.White, 0.3f),
+            surfaceTint = seedColor,
+            surfaceContainerHighest = surfaceContainerHighest,
+            surfaceContainerHigh = surfaceContainerHigh,
+            surfaceContainer = surfaceContainer,
+            surfaceContainerLow = surfaceContainerLow,
+            surfaceContainerLowest = surfaceContainerLowest,
+    )
+  }
+}
+
+private fun ensureContrast(
+        scheme: androidx.compose.material3.ColorScheme,
+        darkTheme: Boolean
+): androidx.compose.material3.ColorScheme {
+  if (darkTheme) {
+    return scheme.copy(
+            onSurface = Color(0xFFE6E1E5),
+            onBackground = Color(0xFFE6E1E5),
+            onSurfaceVariant = Color(0xFFCAC4D0),
+            onPrimaryContainer = Color(0xFFE0E0E0),
+            onSecondaryContainer = Color(0xFFE0E0E0),
+            onTertiaryContainer = Color(0xFFE0E0E0),
+    )
+  } else {
+    return scheme.copy(
+            onSurface = Color(0xFF1C1B1F),
+            onBackground = Color(0xFF1C1B1F),
+            onSurfaceVariant = Color(0xFF49454F),
+            onPrimaryContainer = Color(0xFF1C1B1F),
+            onSecondaryContainer = Color(0xFF1C1B1F),
+            onTertiaryContainer = Color(0xFF1C1B1F),
+    )
+  }
+}
 
 private val AppShapes =
         Shapes(
@@ -297,7 +330,10 @@ fun MDEditorTheme(
           when (val config = themeConfig) {
             is ThemeConfig.DynamicMonet -> {
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+                val raw =
+                        if (darkTheme) dynamicDarkColorScheme(context)
+                        else dynamicLightColorScheme(context)
+                ensureContrast(raw, darkTheme)
               } else {
                 if (darkTheme) GoogleBlueDarkColorScheme else GoogleBlueLightColorScheme
               }
