@@ -205,7 +205,12 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
                         )
         )
 
-        Box(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Box(
+                modifier =
+                        Modifier.fillMaxSize()
+                                .windowInsetsPadding(WindowInsets.ime)
+                                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
           if (isPreviewMode) {
             MarkdownPreview(
                     markdown = textFieldValue.text,
