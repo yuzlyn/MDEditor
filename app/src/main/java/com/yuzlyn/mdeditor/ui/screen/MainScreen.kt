@@ -156,7 +156,7 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
   var selectedIds by remember { mutableStateOf(setOf<String>()) }
   var showMultiColorSheet by remember { mutableStateOf(false) }
   var showRenameDialog by remember { mutableStateOf(false) }
-  var isGridView by remember { mutableStateOf(true) }
+  var isGridView by rememberSaveable { mutableStateOf(true) }
   var currentSortOrder by remember { mutableStateOf(SortOrder.CUSTOM) }
   var isSearching by remember { mutableStateOf(false) }
   var searchQuery by remember { mutableStateOf(TextFieldValue()) }
