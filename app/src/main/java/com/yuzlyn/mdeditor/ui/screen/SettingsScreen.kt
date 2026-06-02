@@ -363,7 +363,7 @@ private fun ThemeSelectionScreen(onBack: () -> Unit) {
                                         .then(
                                                 if (isSelected)
                                                         Modifier.border(
-                                                                3.dp,
+                                                                2.dp,
                                                                 MaterialTheme.colorScheme.primary,
                                                                 CircleShape
                                                         )

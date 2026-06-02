@@ -186,11 +186,10 @@ private fun lerpColor(a: Color, b: Color, fraction: Float): Color {
 }
 
 private fun customColorScheme(
-        seedColor: Color,
+        colorKey: Long,
         darkTheme: Boolean
 ): androidx.compose.material3.ColorScheme {
-  val seedColorLong = seedColor.value.toLong()
-  val entry = MonetPalette.entryForBgColor(seedColorLong)
+  val entry = MonetPalette.entryForBgColor(colorKey)
   val container =
           if (entry != null) {
             if (darkTheme) entry.darkContainer else entry.lightContainer
@@ -335,8 +334,7 @@ fun MDEditorTheme(
               if (darkTheme) GoogleBlueDarkColorScheme else GoogleBlueLightColorScheme
             }
             is ThemeConfig.CustomColor -> {
-              val seed = Color(config.colorLong.toInt())
-              customColorScheme(seed, darkTheme)
+              customColorScheme(config.colorLong, darkTheme)
             }
           }
 
