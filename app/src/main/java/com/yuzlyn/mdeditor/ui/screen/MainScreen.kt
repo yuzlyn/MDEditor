@@ -1159,6 +1159,7 @@ private fun NoteCard(
   Card(
           modifier =
                   Modifier.fillMaxWidth()
+                          .clip(MaterialTheme.shapes.large)
                           .combinedClickable(onClick = onClick, onLongClick = onLongClick)
                           .then(
                                   if (isSelected)
@@ -1257,6 +1258,7 @@ private fun NoteListItem(
           modifier =
                   modifier.fillMaxWidth()
                           .sizeIn(minHeight = 64.dp)
+                          .clip(RoundedCornerShape(12.dp))
                           .combinedClickable(onClick = onClick, onLongClick = onLongClick)
                           .then(borderMod),
           shape = RoundedCornerShape(12.dp),
