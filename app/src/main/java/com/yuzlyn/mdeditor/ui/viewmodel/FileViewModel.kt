@@ -47,7 +47,7 @@ class FileViewModel : ViewModel() {
                 put("deletedAt", note.deletedAt)
               }
             }
-    return "---\n${json.toString()}\n---\n\n"
+    return "---\n${json.toString()}\n---\n"
   }
 
   private fun parseFrontMatter(rawContent: String): Pair<JSONObject?, String> {
@@ -196,7 +196,8 @@ class FileViewModel : ViewModel() {
                     if (frontMatter.has("notebook")) frontMatter.getString("notebook") else null
           }
 
-          val title = child.name?.removeSuffix(".md") ?: "未命名"
+          val cleanText = cleanContent.trimStart()
+          val title = cleanText.lines().firstOrNull()?.take(50) ?: ""
           val lastModified = child.lastModified()
           val notebookTag = notebookFromFm?.ifBlank { null } ?: tag
 
@@ -205,15 +206,16 @@ class FileViewModel : ViewModel() {
                           id = child.uri.toString(),
                           uriString = child.uri.toString(),
                           title = title,
-                          content = cleanContent,
+                          content = cleanText,
                           notebookTag = notebookTag,
                           lastModified = lastModified,
-                          displayPath = child.name ?: title,
+                          displayPath = child.name ?: title.ifBlank { "未命名" },
                           isPinned = isPinned,
                           isArchived = isArchived,
                           backgroundColor = bgColor,
                           isDeleted = isDeleted,
-                          deletedAt = deletedAt
+                          deletedAt = deletedAt,
+                          isTitleCustom = false
                   )
           )
         } catch (e: Exception) {
