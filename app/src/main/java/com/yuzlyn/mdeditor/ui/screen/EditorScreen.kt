@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -144,11 +145,14 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
 
   BackHandler { if (!isExiting) isExiting = true }
 
-  val surfaceBg = MonetPalette.bgColorFor(note.backgroundColor, MaterialTheme.colorScheme.surface)
-  val onSurfaceText =
-          MonetPalette.textColorFor(note.backgroundColor).let {
-            if (it == Color.Unspecified) MaterialTheme.colorScheme.onSurface else it
-          }
+  val isDark = isSystemInDarkTheme()
+  val surfaceBg =
+          MonetPalette.bgColorFor(
+                  note.backgroundColor,
+                  MaterialTheme.colorScheme.surface,
+                  darkTheme = isDark
+          )
+  val onSurfaceText = MonetPalette.textColorFor(note.backgroundColor, darkTheme = isDark)
 
   Surface(color = surfaceBg) {
     Box(modifier = Modifier.fillMaxSize()) {
