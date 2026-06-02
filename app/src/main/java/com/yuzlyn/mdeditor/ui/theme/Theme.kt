@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import com.yuzlyn.mdeditor.data.MonetPalette
 import com.yuzlyn.mdeditor.data.ThemeConfig
 
 private val DefaultLightColorScheme =
@@ -188,98 +189,90 @@ private fun customColorScheme(
         seedColor: Color,
         darkTheme: Boolean
 ): androidx.compose.material3.ColorScheme {
+  val seedColorLong = seedColor.value.toLong()
+  val entry = MonetPalette.entryForBgColor(seedColorLong)
+  val container =
+          if (entry != null) {
+            if (darkTheme) entry.darkContainer else entry.lightContainer
+          } else if (darkTheme) Color(0xFF0F0D13) else Color(0xFFFFFBFE)
+  val onContainer =
+          if (entry != null) {
+            if (darkTheme) entry.darkOnContainer else entry.lightOnContainer
+          } else if (darkTheme) Color(0xFFE6E1E5) else Color(0xFF1C1B1F)
+
   if (darkTheme) {
-    val baseBg = Color(0xFF0F0D13)
-    val background = lerpColor(baseBg, seedColor, 0.10f)
-    val surfaceContainerHighest = lerpColor(baseBg, seedColor, 0.20f)
-    val surfaceContainerHigh = lerpColor(baseBg, seedColor, 0.15f)
-    val surfaceContainer = lerpColor(baseBg, seedColor, 0.12f)
-    val surfaceContainerLow = lerpColor(baseBg, seedColor, 0.08f)
-    val surfaceContainerLowest = lerpColor(baseBg, seedColor, 0.04f)
-    val surfaceVariant = lerpColor(baseBg, seedColor, 0.18f)
+    val base = Color(0xFF0F0D13)
     return darkColorScheme(
-            primary =
-                    Color(
-                            red = (seedColor.red * 0.7f + 0.3f).coerceIn(0f, 1f),
-                            green = (seedColor.green * 0.7f + 0.3f).coerceIn(0f, 1f),
-                            blue = (seedColor.blue * 0.7f + 0.3f).coerceIn(0f, 1f)
-                    ),
+            primary = onContainer,
             onPrimary = Color(0xFF0F0D13),
-            primaryContainer = lerpColor(baseBg, seedColor, 0.30f),
+            primaryContainer = container.copy(alpha = 0.3f),
             onPrimaryContainer = Color(0xFFE0E0E0),
             secondary = Color(0xFFCCC2DC),
             onSecondary = Color(0xFF332D41),
-            secondaryContainer = lerpColor(baseBg, seedColor, 0.22f),
+            secondaryContainer = lerpColor(base, container, 0.5f),
             onSecondaryContainer = Color(0xFFE0E0E0),
             tertiary = Color(0xFFE8B9CC),
             onTertiary = Color(0xFF442C36),
-            tertiaryContainer = lerpColor(baseBg, seedColor, 0.20f),
+            tertiaryContainer = lerpColor(base, container, 0.4f),
             onTertiaryContainer = Color(0xFFE0E0E0),
             error = google_blue_dark_error,
             onError = google_blue_dark_onError,
             errorContainer = google_blue_dark_errorContainer,
             onErrorContainer = google_blue_dark_onErrorContainer,
-            background = background,
+            background = container,
             onBackground = Color(0xFFE6E1E5),
-            surface = background,
+            surface = container,
             onSurface = Color(0xFFE6E1E5),
-            surfaceVariant = surfaceVariant,
+            surfaceVariant = lerpColor(base, container, 0.6f),
             onSurfaceVariant = Color(0xFFCAC4D0),
-            outline = lerpColor(baseBg, seedColor, 0.40f),
-            outlineVariant = lerpColor(baseBg, seedColor, 0.28f),
+            outline = lerpColor(base, container, 0.7f),
+            outlineVariant = lerpColor(base, container, 0.45f),
             inverseSurface = Color(0xFFE6E1E5),
             inverseOnSurface = Color(0xFF313033),
-            inversePrimary = seedColor,
-            surfaceTint = seedColor,
-            surfaceContainerHighest = surfaceContainerHighest,
-            surfaceContainerHigh = surfaceContainerHigh,
-            surfaceContainer = surfaceContainer,
-            surfaceContainerLow = surfaceContainerLow,
-            surfaceContainerLowest = surfaceContainerLowest,
+            inversePrimary = onContainer,
+            surfaceTint = onContainer,
+            surfaceContainerHighest = lerpColor(base, container, 1.0f),
+            surfaceContainerHigh = lerpColor(base, container, 0.85f),
+            surfaceContainer = lerpColor(base, container, 0.7f),
+            surfaceContainerLow = lerpColor(base, container, 0.5f),
+            surfaceContainerLowest = lerpColor(base, container, 0.3f),
     )
   } else {
-    val baseBg = Color.White
-    val background = lerpColor(baseBg, seedColor, 0.10f)
-    val surfaceContainerHighest = lerpColor(baseBg, seedColor, 0.20f)
-    val surfaceContainerHigh = lerpColor(baseBg, seedColor, 0.16f)
-    val surfaceContainer = lerpColor(baseBg, seedColor, 0.12f)
-    val surfaceContainerLow = lerpColor(baseBg, seedColor, 0.08f)
-    val surfaceContainerLowest = lerpColor(baseBg, seedColor, 0.04f)
-    val surfaceVariant = lerpColor(baseBg, seedColor, 0.14f)
+    val base = Color.White
     return lightColorScheme(
-            primary = seedColor,
+            primary = onContainer,
             onPrimary = Color.White,
-            primaryContainer = lerpColor(baseBg, seedColor, 0.16f),
+            primaryContainer = lerpColor(base, container, 0.12f),
             onPrimaryContainer = Color(0xFF1C1B1F),
             secondary = Color(0xFF625B71),
             onSecondary = Color.White,
-            secondaryContainer = lerpColor(baseBg, seedColor, 0.10f),
+            secondaryContainer = lerpColor(base, container, 0.15f),
             onSecondaryContainer = Color(0xFF1C1B1F),
             tertiary = Color(0xFF7D5260),
             onTertiary = Color.White,
-            tertiaryContainer = lerpColor(baseBg, seedColor, 0.12f),
+            tertiaryContainer = lerpColor(base, container, 0.12f),
             onTertiaryContainer = Color(0xFF1C1B1F),
             error = google_blue_light_error,
             onError = google_blue_light_onError,
             errorContainer = google_blue_light_errorContainer,
             onErrorContainer = google_blue_light_onErrorContainer,
-            background = background,
+            background = container,
             onBackground = Color(0xFF1C1B1F),
-            surface = background,
+            surface = container,
             onSurface = Color(0xFF1C1B1F),
-            surfaceVariant = surfaceVariant,
+            surfaceVariant = lerpColor(base, container, 0.25f),
             onSurfaceVariant = Color(0xFF49454F),
             outline = Color(0xFF79747E),
-            outlineVariant = lerpColor(baseBg, seedColor, 0.26f),
+            outlineVariant = lerpColor(base, container, 0.35f),
             inverseSurface = Color(0xFF313033),
             inverseOnSurface = Color(0xFFF4EFF4),
-            inversePrimary = lerpColor(seedColor, Color.White, 0.3f),
-            surfaceTint = seedColor,
-            surfaceContainerHighest = surfaceContainerHighest,
-            surfaceContainerHigh = surfaceContainerHigh,
-            surfaceContainer = surfaceContainer,
-            surfaceContainerLow = surfaceContainerLow,
-            surfaceContainerLowest = surfaceContainerLowest,
+            inversePrimary = lerpColor(onContainer, Color.White, 0.3f),
+            surfaceTint = onContainer,
+            surfaceContainerHighest = lerpColor(base, container, 0.35f),
+            surfaceContainerHigh = lerpColor(base, container, 0.25f),
+            surfaceContainer = lerpColor(base, container, 0.18f),
+            surfaceContainerLow = lerpColor(base, container, 0.10f),
+            surfaceContainerLowest = lerpColor(base, container, 0.05f),
     )
   }
 }

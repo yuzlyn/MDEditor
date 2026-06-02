@@ -13,6 +13,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -850,11 +851,16 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                 for (col in 0 until columns) {
                   val index = row * columns + col
                   if (index < MonetPalette.entries.size) {
+                    val entry = MonetPalette.entries[index]
+                    val pickerColor =
+                            if (entry.bgColorLong == 0x00000000L)
+                                    MaterialTheme.colorScheme.surfaceContainerHigh
+                            else entry.lightContainer
                     Surface(
                             onClick = { batchColor(MonetPalette.entries[index].bgColorLong) },
                             modifier = Modifier.weight(1f),
                             shape = CircleShape,
-                            color = Color(MonetPalette.entries[index].bgColorLong.toInt())
+                            color = pickerColor
                     ) { Box(modifier = Modifier.height(48.dp).fillMaxWidth()) }
                   } else {
                     Spacer(modifier = Modifier.weight(1f))
@@ -1139,14 +1145,16 @@ private fun NoteCard(
         onClick: () -> Unit,
         onLongClick: () -> Unit
 ) {
+  val isDark = isSystemInDarkTheme()
   val cardBg =
           MonetPalette.bgColorFor(
                   note.backgroundColor,
-                  MaterialTheme.colorScheme.surfaceContainerHigh
+                  MaterialTheme.colorScheme.surfaceContainerHigh,
+                  darkTheme = isDark
           )
-  val cardTextColor = MonetPalette.textColorFor(note.backgroundColor)
-  val cardTextVariant = cardTextColor.copy(alpha = 0.65f)
-  val cardOutline = cardTextColor.copy(alpha = 0.35f)
+  val cardTextColor = MonetPalette.textColorFor(note.backgroundColor, darkTheme = isDark)
+  val cardTextVariant = cardTextColor.copy(alpha = 0.7f)
+  val cardOutline = cardTextColor.copy(alpha = 0.5f)
 
   Card(
           modifier =
@@ -1230,7 +1238,8 @@ private fun NoteListItem(
   val secondLine =
           if (note.content.isNotBlank()) note.content.lines().drop(1).joinToString(" ").take(80)
           else ""
-  val textColor = MonetPalette.textColorFor(note.backgroundColor)
+  val isDark = isSystemInDarkTheme()
+  val textColor = MonetPalette.textColorFor(note.backgroundColor, darkTheme = isDark)
   val variantColor = textColor.copy(alpha = 0.6f)
   val mutedColor = textColor.copy(alpha = 0.38f)
 
@@ -1257,7 +1266,8 @@ private fun NoteListItem(
                           containerColor =
                                   MonetPalette.bgColorFor(
                                           note.backgroundColor,
-                                          MaterialTheme.colorScheme.surfaceContainerHigh
+                                          MaterialTheme.colorScheme.surfaceContainerHigh,
+                                          darkTheme = isDark
                                   )
                   )
   ) {

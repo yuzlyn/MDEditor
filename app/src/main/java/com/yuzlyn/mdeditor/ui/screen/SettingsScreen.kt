@@ -351,14 +351,15 @@ private fun ThemeSelectionScreen(onBack: () -> Unit) {
             val isSelected =
                     themeConfig is ThemeConfig.CustomColor &&
                             selectedCustomColor == option.colorLong
-            val bgColor = Color(option.colorLong.toInt())
+            val entry = MonetPalette.entryForBgColor(option.colorLong)
+            val bubbleColor = entry?.lightContainer ?: Color(option.colorLong.toInt())
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
               Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
                         modifier =
                                 Modifier.size(44.dp)
                                         .clip(CircleShape)
-                                        .background(bgColor)
+                                        .background(bubbleColor)
                                         .then(
                                                 if (isSelected)
                                                         Modifier.border(
