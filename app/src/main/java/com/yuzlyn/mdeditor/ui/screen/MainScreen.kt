@@ -3,12 +3,15 @@ package com.yuzlyn.mdeditor.ui.screen
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -159,6 +162,7 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
   var newNotebookName by remember { mutableStateOf("") }
 
   var selectedIds by remember { mutableStateOf(setOf<String>()) }
+  var deletingIds by remember { mutableStateOf(setOf<String>()) }
   var showMultiColorSheet by remember { mutableStateOf(false) }
   var showRenameDialog by remember { mutableStateOf(false) }
   var isGridView by rememberSaveable { mutableStateOf(true) }
@@ -189,6 +193,14 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
 
   fun exitSelectionMode() {
     selectedIds = emptySet()
+  }
+
+  LaunchedEffect(deletingIds) {
+    if (deletingIds.isNotEmpty()) {
+      kotlinx.coroutines.delay(350)
+      deletingIds.forEach { viewModel.deleteNote(context, it) }
+      deletingIds = emptySet()
+    }
   }
 
   LaunchedEffect(drawerState.isClosed) {
@@ -224,7 +236,7 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
 
   fun batchDelete() {
     val ids = selectedIds
-    ids.forEach { viewModel.deleteNote(context, it) }
+    deletingIds = ids
     exitSelectionMode()
   }
 
@@ -742,20 +754,27 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                                   key = currentScreen.name + "_" + note.id,
                                   index = index
                           ) {
-                            NoteCard(
-                                    note = note,
-                                    viewModel = viewModel,
-                                    isSelected = note.id in selectedIds,
-                                    onClick = {
-                                      if (isSelectionMode) {
-                                        toggleSelection(note.id)
-                                      } else if (currentScreen != DrawerScreen.TRASH) {
-                                        viewModel.setCurrentEditNoteId(note.id)
-                                        navController.navigate("editor")
-                                      }
-                                    },
-                                    onLongClick = { toggleSelection(note.id) }
-                            )
+                            Box {
+                              androidx.compose.animation.AnimatedVisibility(
+                                      visible = note.id !in deletingIds,
+                                      exit = fadeOut() + scaleOut()
+                              ) {
+                                NoteCard(
+                                        note = note,
+                                        viewModel = viewModel,
+                                        isSelected = note.id in selectedIds,
+                                        onClick = {
+                                          if (isSelectionMode) {
+                                            toggleSelection(note.id)
+                                          } else if (currentScreen != DrawerScreen.TRASH) {
+                                            viewModel.setCurrentEditNoteId(note.id)
+                                            navController.navigate("editor")
+                                          }
+                                        },
+                                        onLongClick = { toggleSelection(note.id) }
+                                )
+                              }
+                            }
                           }
                         }
                       }
@@ -777,21 +796,28 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                                   key = currentScreen.name + "_" + displayNotes[index].id,
                                   index = index
                           ) {
-                            NoteListItem(
-                                    note = displayNotes[index],
-                                    viewModel = viewModel,
-                                    isSelected = displayNotes[index].id in selectedIds,
-                                    onClick = {
-                                      if (isSelectionMode) {
-                                        toggleSelection(displayNotes[index].id)
-                                      } else if (currentScreen != DrawerScreen.TRASH) {
-                                        viewModel.setCurrentEditNoteId(displayNotes[index].id)
-                                        navController.navigate("editor")
-                                      }
-                                    },
-                                    onLongClick = { toggleSelection(displayNotes[index].id) },
-                                    modifier = Modifier.animateItem()
-                            )
+                            Box {
+                              androidx.compose.animation.AnimatedVisibility(
+                                      visible = displayNotes[index].id !in deletingIds,
+                                      exit = fadeOut() + scaleOut()
+                              ) {
+                                NoteListItem(
+                                        note = displayNotes[index],
+                                        viewModel = viewModel,
+                                        isSelected = displayNotes[index].id in selectedIds,
+                                        onClick = {
+                                          if (isSelectionMode) {
+                                            toggleSelection(displayNotes[index].id)
+                                          } else if (currentScreen != DrawerScreen.TRASH) {
+                                            viewModel.setCurrentEditNoteId(displayNotes[index].id)
+                                            navController.navigate("editor")
+                                          }
+                                        },
+                                        onLongClick = { toggleSelection(displayNotes[index].id) },
+                                        modifier = Modifier.animateItem()
+                                )
+                              }
+                            }
                           }
                         }
                       }
