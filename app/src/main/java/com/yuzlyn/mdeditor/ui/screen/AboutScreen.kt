@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -31,6 +30,7 @@ import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +39,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,15 +48,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.yuzlyn.mdeditor.R
 import com.yuzlyn.mdeditor.data.profile.AuthorProfile
 
@@ -72,6 +71,7 @@ private data class SocialItem(
 fun AboutScreen(onBack: () -> Unit) {
   val context = LocalContext.current
   var cardVisible by remember { mutableStateOf(false) }
+  var showDonateDialog by remember { mutableStateOf(false) }
 
   LaunchedEffect(Unit) {
     cardVisible = true
@@ -123,7 +123,15 @@ fun AboutScreen(onBack: () -> Unit) {
                               tint = MaterialTheme.colorScheme.primary
                       )
                     }
-            ) { ctx -> openUrl(ctx, AuthorProfile.DONATE_URL, "Donate") }
+            ) { showDonateDialog = true }
+    )
+  }
+
+  if (showDonateDialog) {
+    AlertDialog(
+            onDismissRequest = { showDonateDialog = false },
+            confirmButton = { TextButton(onClick = { showDonateDialog = false }) { Text("OK") } },
+            text = { Text("懂你意思") }
     )
   }
 
@@ -163,31 +171,7 @@ fun AboutScreen(onBack: () -> Unit) {
                   modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 32.dp),
                   horizontalAlignment = Alignment.CenterHorizontally
           ) {
-            Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    tonalElevation = 4.dp,
-                    modifier = Modifier.size(96.dp)
-            ) {
-              Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                val avatarRes = avatarResourceOrNull()
-                if (avatarRes != null) {
-                  androidx.compose.foundation.Image(
-                          painter = painterResource(id = avatarRes),
-                          contentDescription = "Author avatar",
-                          contentScale = ContentScale.Crop,
-                          modifier = Modifier.fillMaxSize().clip(CircleShape)
-                  )
-                } else {
-                  Text(
-                          text = AuthorProfile.NICKNAME.take(1).uppercase(),
-                          style = MaterialTheme.typography.headlineLarge,
-                          color = MaterialTheme.colorScheme.onPrimaryContainer,
-                          textAlign = TextAlign.Center
-                  )
-                }
-              }
-            }
+            Text(text = "🐷", fontSize = 56.sp, textAlign = TextAlign.Center)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -284,15 +268,6 @@ fun AboutScreen(onBack: () -> Unit) {
 
       Spacer(modifier = Modifier.height(24.dp))
     }
-  }
-}
-
-private fun avatarResourceOrNull(): Int? {
-  return try {
-    val id = AuthorProfile.AVATAR_RES_ID
-    if (id != 0) id else null
-  } catch (_: Exception) {
-    null
   }
 }
 

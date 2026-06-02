@@ -1,21 +1,15 @@
 package com.yuzlyn.mdeditor.data.profile
 
-import com.yuzlyn.mdeditor.R
-
 object AuthorProfile {
 
   const val NICKNAME = "Yuzlyn"
 
-  const val SUBTITLE = "Independent Developer / Frontend & Android Power User"
+  const val SUBTITLE = "!?whut?!"
 
   const val GITHUB_URL = "https://github.com/yuzlyn"
 
   const val QQ_GROUP_URL =
-    "mqqapi://card/show_pslcard?src_type=internal&version=1&card_type=group&uin=885711945"
+          "http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=5bZpbjA7g7lzD-WAFdgLIMsFUhwfnb-Q&authKey=Jbk3gRhswLCmT9o7L%2BA314juwK3ESsRJEAS2o3VKurZjIvUzuKgzzNvKoKdqPz6V&noverify=0&group_code=570716843"
 
-  const val TG_GROUP_URL = "https://t.me/yuzlyn_channel"
-
-  const val DONATE_URL = "https://ko-fi.com/yuzlyn"
-
-  val AVATAR_RES_ID: Int = R.drawable.avatar_yuzlyn
+  const val TG_GROUP_URL = "https://t.me/+EPepVnyZiutjZmU1"
 }
