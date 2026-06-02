@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -1150,24 +1151,23 @@ private fun NoteListItem(
   val variantColor = textColor.copy(alpha = 0.6f)
   val mutedColor = textColor.copy(alpha = 0.38f)
 
+  val borderMod =
+          if (isSelected)
+                  Modifier.border(
+                          2.dp,
+                          MaterialTheme.colorScheme.primary,
+                          RoundedCornerShape(12.dp)
+                  )
+          else
+                  Modifier.border(
+                          0.5.dp,
+                          MaterialTheme.colorScheme.outlineVariant,
+                          RoundedCornerShape(12.dp)
+                  )
+
   Card(
           onClick = onClick,
-          modifier =
-                  modifier.fillMaxWidth()
-                          .then(
-                                  if (isSelected)
-                                          Modifier.border(
-                                                  2.dp,
-                                                  MaterialTheme.colorScheme.primary,
-                                                  RoundedCornerShape(12.dp)
-                                          )
-                                  else
-                                          Modifier.border(
-                                                  0.5.dp,
-                                                  MaterialTheme.colorScheme.outlineVariant,
-                                                  RoundedCornerShape(12.dp)
-                                          )
-                          ),
+          modifier = modifier.fillMaxWidth().sizeIn(minHeight = 64.dp).then(borderMod),
           shape = RoundedCornerShape(12.dp),
           colors =
                   CardDefaults.cardColors(
