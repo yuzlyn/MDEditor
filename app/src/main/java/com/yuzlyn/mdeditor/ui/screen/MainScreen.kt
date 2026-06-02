@@ -727,24 +727,29 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                                               top = 8.dp,
                                               bottom = 88.dp
                                       ),
-                              verticalArrangement = Arrangement.spacedBy(0.dp)
+                              verticalArrangement = Arrangement.spacedBy(4.dp)
                       ) {
                         items(displayNotes.size, key = { displayNotes[it].id }) { index ->
-                          NoteListItem(
-                                  note = displayNotes[index],
-                                  viewModel = viewModel,
-                                  isSelected = displayNotes[index].id in selectedIds,
-                                  onClick = {
-                                    if (isSelectionMode) {
-                                      toggleSelection(displayNotes[index].id)
-                                    } else if (currentScreen != DrawerScreen.TRASH) {
-                                      viewModel.setCurrentEditNoteId(displayNotes[index].id)
-                                      navController.navigate("editor")
-                                    }
-                                  },
-                                  onLongClick = { toggleSelection(displayNotes[index].id) },
-                                  modifier = Modifier.animateItem()
-                          )
+                          StaggeredFlyInCard(
+                                  key = currentScreen.name + "_" + displayNotes[index].id,
+                                  index = index
+                          ) {
+                            NoteListItem(
+                                    note = displayNotes[index],
+                                    viewModel = viewModel,
+                                    isSelected = displayNotes[index].id in selectedIds,
+                                    onClick = {
+                                      if (isSelectionMode) {
+                                        toggleSelection(displayNotes[index].id)
+                                      } else if (currentScreen != DrawerScreen.TRASH) {
+                                        viewModel.setCurrentEditNoteId(displayNotes[index].id)
+                                        navController.navigate("editor")
+                                      }
+                                    },
+                                    onLongClick = { toggleSelection(displayNotes[index].id) },
+                                    modifier = Modifier.animateItem()
+                            )
+                          }
                         }
                       }
                     }
@@ -1148,11 +1153,11 @@ private fun NoteListItem(
                                           Modifier.border(
                                                   2.dp,
                                                   MaterialTheme.colorScheme.primary,
-                                                  RoundedCornerShape(0.dp)
+                                                  RoundedCornerShape(12.dp)
                                           )
                                   else Modifier
                           ),
-          shape = RoundedCornerShape(0.dp),
+          shape = RoundedCornerShape(12.dp),
           color = MonetPalette.bgColorFor(note.backgroundColor, MaterialTheme.colorScheme.surface)
   ) {
     Row(
