@@ -420,132 +420,140 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
               modifier =
                       Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding())
       ) {
-        Surface(
-                modifier =
-                        Modifier.fillMaxWidth()
-                                .statusBarsPadding()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                tonalElevation = 2.dp,
-                shadowElevation = 0.dp
-        ) {
-          Row(
-                  Modifier.fillMaxWidth().height(56.dp),
-                  verticalAlignment = Alignment.CenterVertically
+        if (currentScreen != DrawerScreen.ABOUT) {
+          Surface(
+                  modifier =
+                          Modifier.fillMaxWidth()
+                                  .statusBarsPadding()
+                                  .padding(horizontal = 16.dp, vertical = 8.dp),
+                  shape = CircleShape,
+                  color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                  tonalElevation = 2.dp,
+                  shadowElevation = 0.dp
           ) {
-            if (isSelectionMode) {
-              IconButton(onClick = { exitSelectionMode() }) {
-                Icon(
-                        Icons.Default.Close,
-                        contentDescription = stringResource(R.string.exit_selection)
-                )
-              }
-              Text(
-                      stringResource(R.string.multi_select_count, selectedIds.size),
-                      modifier = Modifier.weight(1f).padding(start = 4.dp),
-                      style = MaterialTheme.typography.titleMedium,
-                      color = MaterialTheme.colorScheme.onSurface
-              )
-              if (selectedIds.size == 1) {
-                IconButton(onClick = { showRenameDialog = true }) {
-                  Icon(
-                          Icons.Default.DriveFileRenameOutline,
-                          contentDescription = stringResource(R.string.rename)
-                  )
-                }
-              }
-              IconButton(onClick = { batchPin() }) {
-                Icon(Icons.Outlined.PushPin, contentDescription = stringResource(R.string.pin))
-              }
-              IconButton(onClick = { showMultiColorSheet = true }) {
-                Icon(Icons.Default.Palette, contentDescription = stringResource(R.string.bg_color))
-              }
-              IconButton(onClick = { batchArchive() }) {
-                Icon(
-                        Icons.Default.Archive,
-                        contentDescription = stringResource(R.string.editor_archive)
-                )
-              }
-              IconButton(onClick = { batchDelete() }) {
-                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
-              }
-            } else if (isSearching) {
-              IconButton(
-                      onClick = {
-                        isSearching = false
-                        searchQuery = TextFieldValue()
-                      }
-              ) {
-                Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back)
-                )
-              }
-              TextField(
-                      value = searchQuery,
-                      onValueChange = { searchQuery = it },
-                      modifier = Modifier.weight(1f),
-                      placeholder = {
-                        Text(
-                                stringResource(R.string.search_notes),
-                                style = MaterialTheme.typography.bodyLarge
-                        )
-                      },
-                      singleLine = true,
-                      colors =
-                              TextFieldDefaults.colors(
-                                      focusedContainerColor = Color.Transparent,
-                                      unfocusedContainerColor = Color.Transparent,
-                                      focusedIndicatorColor = Color.Transparent,
-                                      unfocusedIndicatorColor = Color.Transparent
-                              )
-              )
-              if (searchQuery.text.isNotBlank()) {
-                IconButton(onClick = { searchQuery = TextFieldValue() }) {
+            Row(
+                    Modifier.fillMaxWidth().height(56.dp),
+                    verticalAlignment = Alignment.CenterVertically
+            ) {
+              if (isSelectionMode) {
+                IconButton(onClick = { exitSelectionMode() }) {
                   Icon(
                           Icons.Default.Close,
                           contentDescription = stringResource(R.string.exit_selection)
                   )
                 }
-              }
-            } else {
-              IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.open_drawer))
-              }
-              Text(
-                      stringResource(R.string.search_notes),
-                      modifier =
-                              Modifier.weight(1f).padding(horizontal = 4.dp).clickable {
-                                Log.d(TAG, "进入全荧幕搜寻")
-                                isSearching = true
-                              },
-                      style = MaterialTheme.typography.bodyLarge,
-                      color = MaterialTheme.colorScheme.onSurfaceVariant
-              )
-              IconButton(
-                      onClick = {
-                        isGridView = !isGridView
-                        Log.d(TAG, "切换视图展示方式：Grid=$isGridView")
-                      }
-              ) {
-                Icon(
-                        if (isGridView) Icons.Default.ViewStream else Icons.Default.GridView,
-                        contentDescription = stringResource(R.string.layout_toggle),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                Text(
+                        stringResource(R.string.multi_select_count, selectedIds.size),
+                        modifier = Modifier.weight(1f).padding(start = 4.dp),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                 )
-              }
-              IconButton(
-                      onClick = {
-                        Log.d(TAG, "调起排序选单")
-                        showSortSheet = true
-                      }
-              ) {
-                Icon(
-                        Icons.AutoMirrored.Filled.Sort,
-                        stringResource(R.string.sort_title),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                if (selectedIds.size == 1) {
+                  IconButton(onClick = { showRenameDialog = true }) {
+                    Icon(
+                            Icons.Default.DriveFileRenameOutline,
+                            contentDescription = stringResource(R.string.rename)
+                    )
+                  }
+                }
+                IconButton(onClick = { batchPin() }) {
+                  Icon(Icons.Outlined.PushPin, contentDescription = stringResource(R.string.pin))
+                }
+                IconButton(onClick = { showMultiColorSheet = true }) {
+                  Icon(
+                          Icons.Default.Palette,
+                          contentDescription = stringResource(R.string.bg_color)
+                  )
+                }
+                IconButton(onClick = { batchArchive() }) {
+                  Icon(
+                          Icons.Default.Archive,
+                          contentDescription = stringResource(R.string.editor_archive)
+                  )
+                }
+                IconButton(onClick = { batchDelete() }) {
+                  Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
+                }
+              } else if (isSearching) {
+                IconButton(
+                        onClick = {
+                          isSearching = false
+                          searchQuery = TextFieldValue()
+                        }
+                ) {
+                  Icon(
+                          Icons.AutoMirrored.Filled.ArrowBack,
+                          contentDescription = stringResource(R.string.back)
+                  )
+                }
+                TextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.weight(1f),
+                        placeholder = {
+                          Text(
+                                  stringResource(R.string.search_notes),
+                                  style = MaterialTheme.typography.bodyLarge
+                          )
+                        },
+                        singleLine = true,
+                        colors =
+                                TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent,
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent
+                                )
                 )
+                if (searchQuery.text.isNotBlank()) {
+                  IconButton(onClick = { searchQuery = TextFieldValue() }) {
+                    Icon(
+                            Icons.Default.Close,
+                            contentDescription = stringResource(R.string.exit_selection)
+                    )
+                  }
+                }
+              } else {
+                IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                  Icon(
+                          Icons.Default.Menu,
+                          contentDescription = stringResource(R.string.open_drawer)
+                  )
+                }
+                Text(
+                        stringResource(R.string.search_notes),
+                        modifier =
+                                Modifier.weight(1f).padding(horizontal = 4.dp).clickable {
+                                  Log.d(TAG, "进入全荧幕搜寻")
+                                  isSearching = true
+                                },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                IconButton(
+                        onClick = {
+                          isGridView = !isGridView
+                          Log.d(TAG, "切换视图展示方式：Grid=$isGridView")
+                        }
+                ) {
+                  Icon(
+                          if (isGridView) Icons.Default.ViewStream else Icons.Default.GridView,
+                          contentDescription = stringResource(R.string.layout_toggle),
+                          tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  )
+                }
+                IconButton(
+                        onClick = {
+                          Log.d(TAG, "调起排序选单")
+                          showSortSheet = true
+                        }
+                ) {
+                  Icon(
+                          Icons.AutoMirrored.Filled.Sort,
+                          stringResource(R.string.sort_title),
+                          tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  )
+                }
               }
             }
           }

@@ -12,12 +12,14 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,18 +31,14 @@ import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,7 +68,6 @@ private data class SocialItem(
         val action: (Context) -> Unit
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
   val context = LocalContext.current
@@ -89,7 +86,7 @@ fun AboutScreen(onBack: () -> Unit) {
                     icon = {
                       Icon(
                               Icons.Default.Code,
-                              contentDescription = null,
+                              null,
                               tint = MaterialTheme.colorScheme.onSurfaceVariant
                       )
                     }
@@ -100,7 +97,7 @@ fun AboutScreen(onBack: () -> Unit) {
                     icon = {
                       Icon(
                               Icons.AutoMirrored.Filled.Chat,
-                              contentDescription = null,
+                              null,
                               tint = MaterialTheme.colorScheme.onSurfaceVariant
                       )
                     }
@@ -111,7 +108,7 @@ fun AboutScreen(onBack: () -> Unit) {
                     icon = {
                       Icon(
                               Icons.AutoMirrored.Filled.Send,
-                              contentDescription = null,
+                              null,
                               tint = MaterialTheme.colorScheme.onSurfaceVariant
                       )
                     }
@@ -122,7 +119,7 @@ fun AboutScreen(onBack: () -> Unit) {
                     icon = {
                       Icon(
                               Icons.Default.CardGiftcard,
-                              contentDescription = null,
+                              null,
                               tint = MaterialTheme.colorScheme.primary
                       )
                     }
@@ -130,44 +127,30 @@ fun AboutScreen(onBack: () -> Unit) {
     )
   }
 
-  Scaffold(
-          modifier = Modifier.fillMaxSize(),
-          containerColor = MaterialTheme.colorScheme.surface,
-          topBar = {
-            TopAppBar(
-                    title = {
-                      Text(
-                              stringResource(R.string.drawer_about),
-                              style = MaterialTheme.typography.titleLarge
-                      )
-                    },
-                    navigationIcon = {
-                      IconButton(onClick = onBack) {
-                        Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back)
-                        )
-                      }
-                    },
-                    colors =
-                            TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.surface,
-                                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                                    navigationIconContentColor =
-                                            MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-            )
-          }
-  ) { innerPadding ->
-    Column(
+  Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+    Row(
             modifier =
-                    Modifier.fillMaxSize()
-                            .padding(innerPadding)
-                            .verticalScroll(rememberScrollState())
-                            .padding(horizontal = 16.dp)
+                    Modifier.fillMaxWidth()
+                            .statusBarsPadding()
+                            .height(56.dp)
+                            .padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
     ) {
-      Spacer(modifier = Modifier.height(16.dp))
+      IconButton(onClick = onBack) {
+        Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.back),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+      }
+      Text(
+              stringResource(R.string.drawer_about),
+              style = MaterialTheme.typography.titleLarge,
+              color = MaterialTheme.colorScheme.onSurface
+      )
+    }
 
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
       ProfileFlyInCard(visible = cardVisible) {
         Surface(
                 shape = RoundedCornerShape(24.dp),
