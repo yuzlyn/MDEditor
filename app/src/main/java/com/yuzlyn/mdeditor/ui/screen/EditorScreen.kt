@@ -72,8 +72,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
@@ -114,19 +112,16 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   }
 
   var textFieldValue by remember {
-    mutableStateOf(TextFieldValue(text = note.content, selection = TextRange(note.content.length)))
+    mutableStateOf(TextFieldValue(text = note.content, selection = TextRange(0)))
   }
   var isPreviewMode by remember { mutableStateOf(false) }
   var isExiting by remember { mutableStateOf(false) }
   var showRenameDialog by remember { mutableStateOf(false) }
-  val focusRequester = remember { FocusRequester() }
   val editorScrollState = rememberScrollState()
   var scrollRatio by remember { mutableStateOf(0f) }
   var pendingScrollRestore by remember { mutableStateOf(false) }
   var hasInitialCompensationRun by remember { mutableStateOf(false) }
   val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-
-  LaunchedEffect(noteId) { focusRequester.requestFocus() }
 
   LaunchedEffect(isExiting) {
     if (isExiting) {
