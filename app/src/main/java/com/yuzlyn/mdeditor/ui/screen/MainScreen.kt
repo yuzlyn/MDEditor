@@ -621,26 +621,50 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                     }
                   }
                 } else {
-                  LazyVerticalStaggeredGrid(
-                          columns = StaggeredGridCells.Fixed(2),
-                          modifier = Modifier.fillMaxSize(),
-                          contentPadding =
-                                  PaddingValues(
-                                          start = 8.dp,
-                                          end = 8.dp,
-                                          top = 8.dp,
-                                          bottom = 88.dp
-                                  ),
-                          horizontalArrangement = Arrangement.spacedBy(8.dp),
-                          verticalItemSpacing = 8.dp
-                  ) {
-                    itemsIndexed(tags, key = { _, it -> it }) { index, tag ->
-                      StaggeredFlyInCard(key = tag, index = index) {
-                        NotebookCard(
-                                name = tag,
-                                count = notebookCounts[tag] ?: 0,
-                                onClick = { selectedNotebook = tag }
-                        )
+                  if (isGridView) {
+                    LazyVerticalStaggeredGrid(
+                            columns = StaggeredGridCells.Fixed(2),
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding =
+                                    PaddingValues(
+                                            start = 8.dp,
+                                            end = 8.dp,
+                                            top = 8.dp,
+                                            bottom = 88.dp
+                                    ),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalItemSpacing = 8.dp
+                    ) {
+                      itemsIndexed(tags, key = { _, it -> it }) { index, tag ->
+                        StaggeredFlyInCard(key = tag, index = index) {
+                          NotebookCard(
+                                  name = tag,
+                                  count = notebookCounts[tag] ?: 0,
+                                  onClick = { selectedNotebook = tag }
+                          )
+                        }
+                      }
+                    }
+                  } else {
+                    LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding =
+                                    PaddingValues(
+                                            start = 8.dp,
+                                            end = 8.dp,
+                                            top = 8.dp,
+                                            bottom = 88.dp
+                                    ),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                      items(tags.size, key = { tags[it] }) { index ->
+                        StaggeredFlyInCard(key = tags[index], index = index) {
+                          NotebookListItem(
+                                  name = tags[index],
+                                  count = notebookCounts[tags[index]] ?: 0,
+                                  onClick = { selectedNotebook = tags[index] }
+                          )
+                        }
                       }
                     }
                   }
@@ -1053,6 +1077,55 @@ private fun NotebookCard(name: String, count: Int, onClick: () -> Unit) {
               style = MaterialTheme.typography.labelSmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
       )
+    }
+  }
+}
+
+@Composable
+private fun NotebookListItem(name: String, count: Int, onClick: () -> Unit) {
+  Card(
+          onClick = onClick,
+          modifier =
+                  Modifier.fillMaxWidth()
+                          .sizeIn(minHeight = 64.dp)
+                          .border(
+                                  0.5.dp,
+                                  MaterialTheme.colorScheme.outlineVariant,
+                                  RoundedCornerShape(12.dp)
+                          ),
+          shape = RoundedCornerShape(12.dp),
+          colors =
+                  CardDefaults.cardColors(
+                          containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                  )
+  ) {
+    Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+    ) {
+      Icon(
+              Icons.Default.Folder,
+              contentDescription = null,
+              modifier = Modifier.size(36.dp),
+              tint = MaterialTheme.colorScheme.primary
+      )
+      Spacer(modifier = Modifier.width(16.dp))
+      Column(modifier = Modifier.weight(1f)) {
+        Text(
+                name,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+                stringResource(R.string.notebook_count, count),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+      }
     }
   }
 }
