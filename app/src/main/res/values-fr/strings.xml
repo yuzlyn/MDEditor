@@ -64,6 +64,8 @@
     <string name="editor_pinned">Désépingler</string>
     <string name="editor_unpinned">Épingler</string>
     <string name="editor_archive">Archiver</string>
+    <string name="editor_unarchive">Désarchiver</string>
+    <string name="more_options">Plus d\u0027options</string>
     <string name="editor_placeholder">Commencez à écrire en Markdown...</string>
     <string name="editor_preview_empty">Aperçu - Aucun contenu</string>
     <string name="editor_insert">Insérer</string>

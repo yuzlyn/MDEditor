@@ -64,6 +64,8 @@
     <string name="editor_pinned">Unpin</string>
     <string name="editor_unpinned">Pin</string>
     <string name="editor_archive">Archive</string>
+    <string name="editor_unarchive">Unarchive</string>
+    <string name="more_options">More options</string>
     <string name="editor_placeholder">Start writing Markdown...</string>
     <string name="editor_preview_empty">Preview - No content</string>
     <string name="editor_insert">Insert</string>

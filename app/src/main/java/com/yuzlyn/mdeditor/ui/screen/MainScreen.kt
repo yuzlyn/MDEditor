@@ -60,6 +60,7 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Settings
@@ -77,6 +78,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
@@ -181,6 +184,7 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
   var searchQuery by remember { mutableStateOf(TextFieldValue()) }
   var showSortSheet by remember { mutableStateOf(false) }
   var pendingScreen by remember { mutableStateOf<DrawerScreen?>(null) }
+  var showMoreMenu by remember { mutableStateOf(false) }
 
   val gridState = rememberLazyStaggeredGridState()
   val listState = rememberLazyListState()
@@ -525,24 +529,73 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                     )
                   }
                 } else {
+                  if (currentScreen == DrawerScreen.ARCHIVE) {
+                    IconButton(onClick = { batchArchive() }) {
+                      Icon(
+                              Icons.Default.Unarchive,
+                              contentDescription = stringResource(R.string.editor_unarchive)
+                      )
+                    }
+                  }
                   IconButton(onClick = { batchPin() }) {
                     Icon(Icons.Outlined.PushPin, contentDescription = stringResource(R.string.pin))
                   }
-                  IconButton(onClick = { showMultiColorSheet = true }) {
-                    Icon(
-                            Icons.Default.Palette,
-                            contentDescription = stringResource(R.string.bg_color)
-                    )
-                  }
-                  IconButton(onClick = { batchArchive() }) {
-                    Icon(
-                            if (currentScreen == DrawerScreen.ARCHIVE) Icons.Default.Unarchive
-                            else Icons.Default.Archive,
-                            contentDescription = stringResource(R.string.editor_archive)
-                    )
-                  }
-                  IconButton(onClick = { batchDelete() }) {
-                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
+                  Box {
+                    IconButton(onClick = { showMoreMenu = true }) {
+                      Icon(
+                              Icons.Default.MoreVert,
+                              contentDescription = stringResource(R.string.more_options)
+                      )
+                    }
+                    DropdownMenu(
+                            expanded = showMoreMenu,
+                            onDismissRequest = { showMoreMenu = false }
+                    ) {
+                      DropdownMenuItem(
+                              text = { Text(stringResource(R.string.bg_color)) },
+                              onClick = {
+                                showMoreMenu = false
+                                showMultiColorSheet = true
+                              },
+                              leadingIcon = {
+                                Icon(
+                                        Icons.Default.Palette,
+                                        null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                              }
+                      )
+                      if (currentScreen != DrawerScreen.ARCHIVE) {
+                        DropdownMenuItem(
+                                text = { Text(stringResource(R.string.editor_archive)) },
+                                onClick = {
+                                  showMoreMenu = false
+                                  batchArchive()
+                                },
+                                leadingIcon = {
+                                  Icon(
+                                          Icons.Default.Archive,
+                                          null,
+                                          tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                  )
+                                }
+                        )
+                      }
+                      DropdownMenuItem(
+                              text = { Text(stringResource(R.string.delete)) },
+                              onClick = {
+                                showMoreMenu = false
+                                batchDelete()
+                              },
+                              leadingIcon = {
+                                Icon(
+                                        Icons.Default.Delete,
+                                        null,
+                                        tint = MaterialTheme.colorScheme.error
+                                )
+                              }
+                      )
+                    }
                   }
                 }
               } else if (isSearching) {

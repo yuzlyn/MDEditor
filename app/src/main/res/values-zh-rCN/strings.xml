@@ -64,6 +64,8 @@
     <string name="editor_pinned">取消置顶</string>
     <string name="editor_unpinned">置顶</string>
     <string name="editor_archive">封存</string>
+    <string name="editor_unarchive">取消封存</string>
+    <string name="more_options">更多选项</string>
     <string name="editor_placeholder">开始编写 Markdown...</string>
     <string name="editor_preview_empty">预览模式 - 暂无内容</string>
     <string name="editor_insert">插入</string>
