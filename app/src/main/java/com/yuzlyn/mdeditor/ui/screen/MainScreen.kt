@@ -427,6 +427,7 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
   ) {
     BackHandler {
       when {
+        isSelectionMode -> exitSelectionMode()
         currentScreen == DrawerScreen.ABOUT -> currentScreen = DrawerScreen.MARKDOWNS
         isSearching -> {
           isSearching = false
