@@ -1062,7 +1062,11 @@ private fun NoteCard(
         onClick: () -> Unit,
         onLongClick: () -> Unit
 ) {
-  val cardBg = MonetPalette.bgColorFor(note.backgroundColor, MaterialTheme.colorScheme.surface)
+  val cardBg =
+          MonetPalette.bgColorFor(
+                  note.backgroundColor,
+                  MaterialTheme.colorScheme.surfaceContainerHigh
+          )
   val cardTextColor = MonetPalette.textColorFor(note.backgroundColor)
   val cardTextVariant = cardTextColor.copy(alpha = 0.65f)
   val cardOutline = cardTextColor.copy(alpha = 0.35f)
@@ -1158,7 +1162,11 @@ private fun NoteListItem(
                                   else Modifier
                           ),
           shape = RoundedCornerShape(12.dp),
-          color = MonetPalette.bgColorFor(note.backgroundColor, MaterialTheme.colorScheme.surface)
+          color =
+                  MonetPalette.bgColorFor(
+                          note.backgroundColor,
+                          MaterialTheme.colorScheme.surfaceContainerHigh
+                  )
   ) {
     Row(
             modifier =
