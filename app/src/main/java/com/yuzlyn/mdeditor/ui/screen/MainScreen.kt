@@ -449,9 +449,10 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                 currentScreen == DrawerScreen.NOTEBOOKS && selectedNotebook == null -> {
                   FloatingActionButton(
                           onClick = { showNewNotebookDialog = true },
-                          containerColor = MaterialTheme.colorScheme.primaryContainer,
-                          contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                          shape = MaterialTheme.shapes.large
+                          containerColor = MaterialTheme.colorScheme.primary,
+                          contentColor = MaterialTheme.colorScheme.onPrimary,
+                          shape = MaterialTheme.shapes.large,
+                          modifier = Modifier.zIndex(Float.MAX_VALUE)
                   ) { Icon(Icons.Default.Add, contentDescription = "新建笔记本") }
                 }
                 else -> {
@@ -466,9 +467,10 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                               navController.navigate("editor")
                             }
                           },
-                          containerColor = MaterialTheme.colorScheme.primaryContainer,
-                          contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                          shape = MaterialTheme.shapes.large
+                          containerColor = MaterialTheme.colorScheme.primary,
+                          contentColor = MaterialTheme.colorScheme.onPrimary,
+                          shape = MaterialTheme.shapes.large,
+                          modifier = Modifier.zIndex(Float.MAX_VALUE)
                   ) { Icon(Icons.Default.Add, contentDescription = "新建笔记") }
                 }
               }
