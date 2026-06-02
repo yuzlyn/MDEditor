@@ -195,57 +195,34 @@ private fun customColorScheme(seedColor: Color, darkTheme: Boolean) =
           val baseSurface = Color(0xFF0F0D13)
           val tintedSurface = lerpColor(baseSurface, seedColor, 0.06f)
           val tintedSurfaceVariant = lerpColor(baseSurface, seedColor, 0.12f)
-          val tintedOutline = lerpColor(tintedSurfaceVariant, primary, 0.3f)
+          val tintedOutline = lerpColor(baseSurface, seedColor, 0.35f)
           darkColorScheme(
                   primary = primary,
                   onPrimary = Color(0xFF0F0D13),
                   primaryContainer = lerpColor(baseSurface, seedColor, 0.25f),
-                  onPrimaryContainer = lerpColor(primary, Color.White, 0.3f),
-                  secondary = lerpColor(tintedSurfaceVariant, seedColor, 0.4f),
-                  onSecondary = Color(0xFF0F0D13),
+                  onPrimaryContainer = Color(0xFFE0E0E0),
+                  secondary = Color(0xFFCCC2DC),
+                  onSecondary = Color(0xFF332D41),
                   secondaryContainer = lerpColor(baseSurface, seedColor, 0.15f),
-                  onSecondaryContainer =
-                          lerpColor(tintedSurfaceVariant, seedColor, 0.7f).copy(alpha = 1f),
-                  tertiary =
-                          Color(
-                                  red =
-                                          (seedColor.green * 0.6f + seedColor.blue * 0.4f).coerceIn(
-                                                  0f,
-                                                  1f
-                                          ),
-                                  green =
-                                          (seedColor.blue * 0.6f + seedColor.red * 0.4f).coerceIn(
-                                                  0f,
-                                                  1f
-                                          ),
-                                  blue =
-                                          (seedColor.red * 0.6f + seedColor.green * 0.4f).coerceIn(
-                                                  0f,
-                                                  1f
-                                          )
-                          ),
-                  onTertiary = Color(0xFF0F0D13),
+                  onSecondaryContainer = Color(0xFFE0E0E0),
+                  tertiary = Color(0xFFE8B9CC),
+                  onTertiary = Color(0xFF442C36),
                   tertiaryContainer = lerpColor(baseSurface, seedColor, 0.18f),
-                  onTertiaryContainer = lerpColor(tintedSurfaceVariant, seedColor, 0.6f),
+                  onTertiaryContainer = Color(0xFFE0E0E0),
                   error = google_blue_dark_error,
                   onError = google_blue_dark_onError,
                   errorContainer = google_blue_dark_errorContainer,
                   onErrorContainer = google_blue_dark_onErrorContainer,
                   background = tintedSurface,
-                  onBackground = lerpColor(tintedSurface, Color.White, 0.85f),
+                  onBackground = Color(0xFFE6E1E5),
                   surface = tintedSurface,
-                  onSurface = lerpColor(tintedSurface, Color.White, 0.85f),
+                  onSurface = Color(0xFFE6E1E5),
                   surfaceVariant = tintedSurfaceVariant,
-                  onSurfaceVariant = lerpColor(tintedSurfaceVariant, Color.White, 0.7f),
+                  onSurfaceVariant = Color(0xFFCAC4D0),
                   outline = tintedOutline,
-                  outlineVariant =
-                          tintedSurfaceVariant.copy(
-                                  red = (tintedSurfaceVariant.red * 1.15f).coerceIn(0f, 1f),
-                                  green = (tintedSurfaceVariant.green * 1.15f).coerceIn(0f, 1f),
-                                  blue = (tintedSurfaceVariant.blue * 1.15f).coerceIn(0f, 1f)
-                          ),
-                  inverseSurface = lerpColor(tintedSurface, Color.White, 0.85f),
-                  inverseOnSurface = lerpColor(tintedSurface, Color.Black, 0.2f),
+                  outlineVariant = lerpColor(baseSurface, seedColor, 0.25f),
+                  inverseSurface = Color(0xFFE6E1E5),
+                  inverseOnSurface = Color(0xFF313033),
                   inversePrimary = seedColor,
                   surfaceTint = primary,
                   surfaceContainerHighest = lerpColor(baseSurface, seedColor, 0.16f),
@@ -262,50 +239,31 @@ private fun customColorScheme(seedColor: Color, darkTheme: Boolean) =
           val tintedSurface = lerpColor(baseSurface, seedColor, 0.09f)
           val tintedSurfaceHigh = lerpColor(baseSurface, seedColor, 0.12f)
           val tintedSurfaceHighest = lerpColor(baseSurface, seedColor, 0.16f)
-          val tintedSurfaceVariant = lerpColor(baseSurface, seedColor, 0.10f)
-          val onSurfaceBase = Color(0xFF1C1B1F)
           lightColorScheme(
                   primary = seedColor,
                   onPrimary = Color.White,
                   primaryContainer = lerpColor(baseSurface, seedColor, 0.12f),
-                  onPrimaryContainer = lerpColor(seedColor, Color.Black, 0.55f),
-                  secondary = lerpColor(tintedSurfaceVariant, seedColor, 0.35f),
+                  onPrimaryContainer = Color(0xFF1C1B1F),
+                  secondary = Color(0xFF625B71),
                   onSecondary = Color.White,
                   secondaryContainer = lerpColor(baseSurface, seedColor, 0.07f),
-                  onSecondaryContainer = lerpColor(seedColor, Color.Black, 0.6f),
-                  tertiary =
-                          Color(
-                                  red =
-                                          (seedColor.green * 0.5f + seedColor.blue * 0.5f).coerceIn(
-                                                  0f,
-                                                  1f
-                                          ),
-                                  green =
-                                          (seedColor.blue * 0.5f + seedColor.red * 0.5f).coerceIn(
-                                                  0f,
-                                                  1f
-                                          ),
-                                  blue =
-                                          (seedColor.red * 0.5f + seedColor.green * 0.5f).coerceIn(
-                                                  0f,
-                                                  1f
-                                          )
-                          ),
+                  onSecondaryContainer = Color(0xFF1C1B1F),
+                  tertiary = Color(0xFF7D5260),
                   onTertiary = Color.White,
                   tertiaryContainer = lerpColor(baseSurface, seedColor, 0.09f),
-                  onTertiaryContainer = lerpColor(seedColor, Color.Black, 0.55f),
+                  onTertiaryContainer = Color(0xFF1C1B1F),
                   error = google_blue_light_error,
                   onError = google_blue_light_onError,
                   errorContainer = google_blue_light_errorContainer,
                   onErrorContainer = google_blue_light_onErrorContainer,
                   background = tintedBackground,
-                  onBackground = onSurfaceBase,
+                  onBackground = Color(0xFF1C1B1F),
                   surface = tintedBackground,
-                  onSurface = onSurfaceBase,
+                  onSurface = Color(0xFF1C1B1F),
                   surfaceVariant = lerpColor(baseSurface, seedColor, 0.10f),
-                  onSurfaceVariant = lerpColor(tintedSurfaceVariant, Color.Black, 0.6f),
-                  outline = lerpColor(tintedSurfaceVariant, Color.Black, 0.5f),
-                  outlineVariant = lerpColor(baseSurface, seedColor, 0.08f),
+                  onSurfaceVariant = Color(0xFF49454F),
+                  outline = Color(0xFF79747E),
+                  outlineVariant = lerpColor(baseSurface, seedColor, 0.22f),
                   inverseSurface = Color(0xFF313033),
                   inverseOnSurface = lerpColor(baseSurface, seedColor, 0.06f),
                   inversePrimary = lerpColor(seedColor, Color.White, 0.3f),
