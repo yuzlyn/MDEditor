@@ -506,7 +506,7 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                 )
-                if (selectedIds.size == 1) {
+                if (selectedIds.size == 1 && currentScreen != DrawerScreen.ARCHIVE) {
                   IconButton(onClick = { showRenameDialog = true }) {
                     Icon(
                             Icons.Default.DriveFileRenameOutline,
@@ -536,9 +536,13 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                               contentDescription = stringResource(R.string.editor_unarchive)
                       )
                     }
-                  }
-                  IconButton(onClick = { batchPin() }) {
-                    Icon(Icons.Outlined.PushPin, contentDescription = stringResource(R.string.pin))
+                  } else {
+                    IconButton(onClick = { batchPin() }) {
+                      Icon(
+                              Icons.Outlined.PushPin,
+                              contentDescription = stringResource(R.string.pin)
+                      )
+                    }
                   }
                   Box {
                     IconButton(onClick = { showMoreMenu = true }) {
@@ -565,7 +569,38 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                                 )
                               }
                       )
-                      if (currentScreen != DrawerScreen.ARCHIVE) {
+                      if (currentScreen == DrawerScreen.ARCHIVE) {
+                        if (selectedIds.size == 1) {
+                          DropdownMenuItem(
+                                  text = { Text(stringResource(R.string.rename)) },
+                                  onClick = {
+                                    showMoreMenu = false
+                                    showRenameDialog = true
+                                  },
+                                  leadingIcon = {
+                                    Icon(
+                                            Icons.Default.DriveFileRenameOutline,
+                                            null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                  }
+                          )
+                        }
+                        DropdownMenuItem(
+                                text = { Text(stringResource(R.string.pin)) },
+                                onClick = {
+                                  showMoreMenu = false
+                                  batchPin()
+                                },
+                                leadingIcon = {
+                                  Icon(
+                                          Icons.Outlined.PushPin,
+                                          null,
+                                          tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                  )
+                                }
+                        )
+                      } else {
                         DropdownMenuItem(
                                 text = { Text(stringResource(R.string.editor_archive)) },
                                 onClick = {
