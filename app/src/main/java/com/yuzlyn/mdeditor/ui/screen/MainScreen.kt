@@ -1,6 +1,7 @@
 package com.yuzlyn.mdeditor.ui.screen
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -419,6 +420,17 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
             }
           }
   ) {
+    BackHandler {
+      when {
+        currentScreen == DrawerScreen.ABOUT -> currentScreen = DrawerScreen.MARKDOWNS
+        isSearching -> {
+          isSearching = false
+          searchQuery = TextFieldValue()
+        }
+        selectedNotebook != null -> selectedNotebook = null
+        else -> {}
+      }
+    }
     Scaffold(
             modifier = Modifier.fillMaxSize(),
             containerColor = MaterialTheme.colorScheme.surface,
