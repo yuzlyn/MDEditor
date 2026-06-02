@@ -105,4 +105,15 @@
     <string name="about_donate">Soutenir</string>
     <string name="about_donate_desc">Offrez-moi un café</string>
     <string name="about_open_failed">Impossible d\'ouvrir %s. Lien copié dans le presse-papiers.</string>
+    <string name="settings_theme">Thème &amp; Couleurs</string>
+    <string name="settings_theme_desc">Personnaliser le jeu de couleurs</string>
+    <string name="theme_system_default">Défaut système</string>
+    <string name="theme_system_default_desc">Suivre le mode clair/sombre avec Google Bleu</string>
+    <string name="theme_dynamic_monet">Material You</string>
+    <string name="theme_dynamic_monet_desc">Couleurs dynamiques du fond d\'écran</string>
+    <string name="theme_dynamic_disabled">Android 12+ uniquement</string>
+    <string name="theme_monet_palette">Palette Monet</string>
+    <string name="theme_mode_system">Défaut système</string>
+    <string name="theme_mode_dynamic">Material You · Activé</string>
+    <string name="theme_mode_custom">Personnalisé · %s</string>
 </resources>

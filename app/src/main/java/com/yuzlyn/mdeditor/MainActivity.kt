@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.yuzlyn.mdeditor.data.ThemeConfig
 import com.yuzlyn.mdeditor.ui.screen.EditorScreen
 import com.yuzlyn.mdeditor.ui.screen.MainScreen
 import com.yuzlyn.mdeditor.ui.screen.SettingsScreen
@@ -51,6 +52,7 @@ class MainActivity : ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     applyLocale(this, getSavedLocale(this))
+    ThemeConfig.load(this)
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     setContent {

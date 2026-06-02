@@ -105,4 +105,15 @@
     <string name="about_donate">支持作者</string>
     <string name="about_donate_desc">請我喝杯咖啡</string>
     <string name="about_open_failed">無法開啟 %s，已複製連結到剪貼簿</string>
+    <string name="settings_theme">主題與色彩</string>
+    <string name="settings_theme_desc">自訂應用程式配色方案</string>
+    <string name="theme_system_default">跟隨系統</string>
+    <string name="theme_system_default_desc">跟隨系統亮/暗模式，使用 Google 藍</string>
+    <string name="theme_dynamic_monet">Material You</string>
+    <string name="theme_dynamic_monet_desc">從桌布提取動態色彩</string>
+    <string name="theme_dynamic_disabled">僅支援 Android 12+</string>
+    <string name="theme_monet_palette">莫奈色系</string>
+    <string name="theme_mode_system">跟隨系統</string>
+    <string name="theme_mode_dynamic">Material You · 已啟用</string>
+    <string name="theme_mode_custom">自選 · %s</string>
 </resources>

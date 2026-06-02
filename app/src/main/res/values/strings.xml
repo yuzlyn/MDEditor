@@ -105,4 +105,15 @@
     <string name="about_donate">Support</string>
     <string name="about_donate_desc">Buy me a coffee</string>
     <string name="about_open_failed">Could not open %s. Link copied to clipboard.</string>
+    <string name="settings_theme">Theme &amp; Colors</string>
+    <string name="settings_theme_desc">Personalize app color scheme</string>
+    <string name="theme_system_default">System Default</string>
+    <string name="theme_system_default_desc">Follow system light/dark with Google Blue</string>
+    <string name="theme_dynamic_monet">Material You</string>
+    <string name="theme_dynamic_monet_desc">Dynamic colors from your wallpaper</string>
+    <string name="theme_dynamic_disabled">Android 12+ only</string>
+    <string name="theme_monet_palette">Monet Palette</string>
+    <string name="theme_mode_system">Follow System</string>
+    <string name="theme_mode_dynamic">Material You · Enabled</string>
+    <string name="theme_mode_custom">Custom · %s</string>
 </resources>
