@@ -123,6 +123,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   val editorScrollState = rememberScrollState()
   var scrollRatio by remember { mutableStateOf(0f) }
   var pendingScrollRestore by remember { mutableStateOf(false) }
+  var hasInitialCompensationRun by remember { mutableStateOf(false) }
   val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
   LaunchedEffect(noteId) { focusRequester.requestFocus() }
@@ -148,20 +149,27 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   }
 
   LaunchedEffect(isImeVisible, isPreviewMode, textFieldValue.selection) {
-    if (!isImeVisible || isPreviewMode) return@LaunchedEffect
-    kotlinx.coroutines.delay(200)
+    if (!isImeVisible || isPreviewMode) {
+      hasInitialCompensationRun = false
+      return@LaunchedEffect
+    }
+    if (!hasInitialCompensationRun) {
+      hasInitialCompensationRun = true
+      return@LaunchedEffect
+    }
+    kotlinx.coroutines.delay(180)
     val textLen = textFieldValue.text.length
     if (textLen == 0) return@LaunchedEffect
     val selStart = textFieldValue.selection.start
     val ratio = selStart.toFloat() / textLen.toFloat()
-    if (ratio < 0.55f) {
-      Log.d(TAG, "光标在上半部(ratio=$ratio)，不补偿")
-      return@LaunchedEffect
-    }
     val ms = editorScrollState.maxValue
-    if (ms <= 0) return@LaunchedEffect
-    val target = ((ratio * ms).toInt()).let { if (it < 0) 0 else if (it > ms) ms else it }
-    Log.d(TAG, "键盘弹起，光标在底部区域(ratio=$ratio)，补偿滚动到=$target")
+    val vp = editorScrollState.viewportSize
+    if (ms <= 0 || vp <= 0) return@LaunchedEffect
+    val target =
+            (((ratio * (ms + vp)) - vp * 0.6f).toInt()).let {
+              if (it < 0) 0 else if (it > ms) ms else it
+            }
+    Log.d(TAG, "键盘补偿: ratio=$ratio, target=$target, ms=$ms, vp=$vp")
     editorScrollState.animateScrollTo(
             target,
             androidx.compose.animation.core.spring(
@@ -272,7 +280,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
                     markdown = textFieldValue.text,
                     textColor = onSurfaceText,
                     scrollState = editorScrollState,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                    modifier = Modifier.padding(bottom = 64.dp)
             )
           } else {
             Box(
@@ -280,6 +288,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
                             Modifier.fillMaxSize()
                                     .verticalScroll(editorScrollState)
                                     .padding(horizontal = 16.dp, vertical = 12.dp)
+                                    .padding(bottom = 64.dp)
             ) {
               BasicTextField(
                       value = textFieldValue,
