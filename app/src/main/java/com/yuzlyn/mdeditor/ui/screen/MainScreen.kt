@@ -63,6 +63,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.icons.filled.ViewStream
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Delete
@@ -535,7 +536,8 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                   }
                   IconButton(onClick = { batchArchive() }) {
                     Icon(
-                            Icons.Default.Archive,
+                            if (currentScreen == DrawerScreen.ARCHIVE) Icons.Default.Unarchive
+                            else Icons.Default.Archive,
                             contentDescription = stringResource(R.string.editor_archive)
                     )
                   }
