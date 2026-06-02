@@ -451,8 +451,7 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                           onClick = { showNewNotebookDialog = true },
                           containerColor = MaterialTheme.colorScheme.primary,
                           contentColor = MaterialTheme.colorScheme.onPrimary,
-                          shape = MaterialTheme.shapes.large,
-                          modifier = Modifier.zIndex(Float.MAX_VALUE)
+                          shape = MaterialTheme.shapes.large
                   ) { Icon(Icons.Default.Add, contentDescription = "新建笔记本") }
                 }
                 else -> {
@@ -469,8 +468,7 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
                           },
                           containerColor = MaterialTheme.colorScheme.primary,
                           contentColor = MaterialTheme.colorScheme.onPrimary,
-                          shape = MaterialTheme.shapes.large,
-                          modifier = Modifier.zIndex(Float.MAX_VALUE)
+                          shape = MaterialTheme.shapes.large
                   ) { Icon(Icons.Default.Add, contentDescription = "新建笔记") }
                 }
               }
