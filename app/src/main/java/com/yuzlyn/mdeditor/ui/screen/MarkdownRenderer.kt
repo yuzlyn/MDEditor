@@ -528,7 +528,7 @@ private fun androidx.compose.ui.text.AnnotatedString.Builder.appendInlineNodesIn
         }
         pop()
       }
-      is SoftLineBreak -> append(" ")
+      is SoftLineBreak -> append("\n")
       is HardLineBreak -> append("\n")
       else -> appendInlineNodesInternal(child, textColor, underlining)
     }
