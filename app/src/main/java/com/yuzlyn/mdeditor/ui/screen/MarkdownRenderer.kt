@@ -38,6 +38,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import org.commonmark.ext.gfm.strikethrough.Strikethrough
+import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
 import org.commonmark.ext.gfm.tables.TableBlock
 import org.commonmark.ext.gfm.tables.TableBody
 import org.commonmark.ext.gfm.tables.TableCell
@@ -51,6 +53,7 @@ import org.commonmark.node.Emphasis
 import org.commonmark.node.FencedCodeBlock
 import org.commonmark.node.HardLineBreak
 import org.commonmark.node.Heading
+import org.commonmark.node.HtmlInline
 import org.commonmark.node.IndentedCodeBlock
 import org.commonmark.node.Link
 import org.commonmark.node.ListItem
@@ -66,7 +69,9 @@ import org.commonmark.parser.Parser
 private const val TAG = "MDEditor_Debug"
 
 private val markdownParser: Parser by lazy {
-  Parser.builder().extensions(listOf(TablesExtension.create())).build()
+  Parser.builder()
+          .extensions(listOf(TablesExtension.create(), StrikethroughExtension.create()))
+          .build()
 }
 
 @Composable
@@ -457,20 +462,50 @@ private fun androidx.compose.ui.text.AnnotatedString.Builder.appendInlineNodes(
         node: Node,
         textColor: Color
 ) {
+  val underlining = booleanArrayOf(false)
+  appendInlineNodesInternal(node, textColor, underlining)
+}
+
+private fun androidx.compose.ui.text.AnnotatedString.Builder.appendInlineNodesInternal(
+        node: Node,
+        textColor: Color,
+        underlining: BooleanArray
+) {
   var child = node.firstChild
   while (child != null) {
     when (child) {
       is MdText -> {
         val txt = child.literal
         if (txt.isNotBlank() || txt.isNotEmpty()) {
-          append(txt)
+          if (underlining[0]) {
+            withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) { append(txt) }
+          } else {
+            append(txt)
+          }
         }
       }
       is StrongEmphasis -> {
-        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { appendInlineNodes(child, textColor) }
+        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+          appendInlineNodesInternal(child, textColor, underlining)
+        }
       }
       is Emphasis -> {
-        withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { appendInlineNodes(child, textColor) }
+        withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+          appendInlineNodesInternal(child, textColor, underlining)
+        }
+      }
+      is Strikethrough -> {
+        withStyle(SpanStyle(textDecoration = TextDecoration.LineThrough)) {
+          appendInlineNodesInternal(child, textColor, underlining)
+        }
+      }
+      is HtmlInline -> {
+        val literal = child.literal
+        if (literal == "<u>" || literal == "<ins>") {
+          underlining[0] = true
+        } else if (literal == "</u>" || literal == "</ins>") {
+          underlining[0] = false
+        }
       }
       is Code -> {
         val code = child.literal
@@ -489,13 +524,13 @@ private fun androidx.compose.ui.text.AnnotatedString.Builder.appendInlineNodes(
         val url = child.destination ?: ""
         pushStringAnnotation(tag = "URL", annotation = url)
         withStyle(SpanStyle(color = Color(0xFF1A73E8), textDecoration = TextDecoration.Underline)) {
-          appendInlineNodes(child, textColor)
+          appendInlineNodesInternal(child, textColor, underlining)
         }
         pop()
       }
       is SoftLineBreak -> append(" ")
       is HardLineBreak -> append("\n")
-      else -> appendInlineNodes(child, textColor)
+      else -> appendInlineNodesInternal(child, textColor, underlining)
     }
     child = child.next
   }
