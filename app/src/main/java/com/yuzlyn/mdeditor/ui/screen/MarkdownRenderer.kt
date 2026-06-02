@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -234,17 +235,24 @@ private fun RenderBulletList(bulletList: BulletList, textColor: Color) {
   Spacer(modifier = Modifier.height(4.dp))
   Column(modifier = Modifier.fillMaxWidth().padding(start = 8.dp)) {
     var child = bulletList.firstChild
-    var idx = 0
     while (child != null) {
       if (child is ListItem) {
-        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+        val annotated = buildInlineAnnotatedString(child, textColor)
+        Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                verticalAlignment = Alignment.Top
+        ) {
           Text("•", color = textColor, style = MaterialTheme.typography.bodyLarge)
           Spacer(modifier = Modifier.width(8.dp))
-          Column(modifier = Modifier.weight(1f)) { RenderAstNode(child, textColor) }
+          Text(
+                  text = annotated,
+                  style = MaterialTheme.typography.bodyLarge,
+                  color = textColor,
+                  modifier = Modifier.weight(1f)
+          )
         }
       }
       child = child.next
-      idx++
     }
   }
   Spacer(modifier = Modifier.height(4.dp))
@@ -258,14 +266,23 @@ private fun RenderOrderedList(orderedList: OrderedList, textColor: Color) {
     var idx = 1
     while (child != null) {
       if (child is ListItem) {
-        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+        val annotated = buildInlineAnnotatedString(child, textColor)
+        Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                verticalAlignment = Alignment.Top
+        ) {
           Text(
                   "$idx.",
                   color = textColor,
                   style = MaterialTheme.typography.bodyLarge,
                   modifier = Modifier.width(24.dp)
           )
-          Column(modifier = Modifier.weight(1f)) { RenderAstNode(child, textColor) }
+          Text(
+                  text = annotated,
+                  style = MaterialTheme.typography.bodyLarge,
+                  color = textColor,
+                  modifier = Modifier.weight(1f)
+          )
         }
       }
       child = child.next
