@@ -428,6 +428,9 @@ fun MainScreen(navController: NavHostController, viewModel: FileViewModel) {
           searchQuery = TextFieldValue()
         }
         selectedNotebook != null -> selectedNotebook = null
+        currentScreen == DrawerScreen.NOTEBOOKS -> currentScreen = DrawerScreen.MARKDOWNS
+        currentScreen == DrawerScreen.ARCHIVE -> currentScreen = DrawerScreen.MARKDOWNS
+        currentScreen == DrawerScreen.TRASH -> currentScreen = DrawerScreen.MARKDOWNS
         else -> {}
       }
     }
