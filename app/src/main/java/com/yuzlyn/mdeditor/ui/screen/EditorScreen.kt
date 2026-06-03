@@ -220,146 +220,144 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   val onSurfaceText = MonetPalette.textColorFor(note.backgroundColor, darkTheme = isDark)
 
   Surface(color = surfaceBg) {
-    Box(modifier = Modifier.fillMaxSize()) {
-      Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(
-                title = {},
-                navigationIcon = {
-                  IconButton(onClick = { isExiting = true }) {
-                    Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            stringResource(R.string.editor_back),
-                            tint = onSurfaceText.copy(alpha = 0.7f)
-                    )
-                  }
-                },
-                actions = {
-                  IconButton(
-                          onClick = {
-                            val maxScroll = editorScrollState.maxValue
-                            if (maxScroll > 0) {
-                              scrollRatio = editorScrollState.value.toFloat() / maxScroll.toFloat()
-                              Log.d(
-                                      TAG,
-                                      "切换模式前保存滚动进度：$scrollRatio (offset=${editorScrollState.value}/$maxScroll)"
-                              )
-                            }
-                            isPreviewMode = !isPreviewMode
-                          }
-                  ) {
-                    Icon(
-                            imageVector =
-                                    if (isPreviewMode) Icons.Default.Visibility
-                                    else Icons.Default.VisibilityOff,
-                            contentDescription =
-                                    if (isPreviewMode) stringResource(R.string.editor_code_mode)
-                                    else stringResource(R.string.editor_preview_mode),
-                            tint =
-                                    if (isPreviewMode) MaterialTheme.colorScheme.primary
-                                    else onSurfaceText.copy(alpha = 0.7f)
-                    )
-                  }
-                  IconButton(onClick = { viewModel.pinNote(context, noteId) }) {
-                    Icon(
-                            imageVector =
-                                    if (note.isPinned) Icons.Filled.PushPin
-                                    else Icons.Outlined.PushPin,
-                            contentDescription =
-                                    if (note.isPinned) stringResource(R.string.editor_pinned)
-                                    else stringResource(R.string.editor_unpinned),
-                            tint =
-                                    if (note.isPinned) MaterialTheme.colorScheme.primary
-                                    else onSurfaceText.copy(alpha = 0.7f)
-                    )
-                  }
-                  IconButton(
-                          onClick = {
-                            viewModel.archiveNote(context, noteId)
-                            isExiting = true
-                          }
-                  ) {
-                    Icon(
-                            Icons.Default.Archive,
-                            stringResource(R.string.editor_archive),
-                            tint = onSurfaceText.copy(alpha = 0.7f)
-                    )
-                  }
-                  IconButton(onClick = { showRenameDialog = true }) {
-                    Icon(
-                            Icons.Default.DriveFileRenameOutline,
-                            stringResource(R.string.rename),
-                            tint = onSurfaceText.copy(alpha = 0.7f)
-                    )
-                  }
-                },
-                colors =
-                        TopAppBarDefaults.topAppBarColors(
-                                containerColor = surfaceBg,
-                                titleContentColor = onSurfaceText,
-                                navigationIconContentColor = onSurfaceText.copy(alpha = 0.7f),
-                                actionIconContentColor = onSurfaceText.copy(alpha = 0.7f)
-                        )
-        )
-
-        Box(
-                modifier =
-                        Modifier.fillMaxSize()
-                                .navigationBarsPadding()
-                                .windowInsetsPadding(WindowInsets.ime)
-        ) {
-          if (isPreviewMode) {
-            MarkdownPreview(
-                    markdown = textFieldValue.text,
-                    textColor = onSurfaceText,
-                    scrollState = editorScrollState,
-                    modifier = Modifier.padding(bottom = 64.dp)
-            )
-          } else {
-            BoxWithConstraints(
-                    modifier =
-                            Modifier.fillMaxSize()
-                                    .verticalScroll(editorScrollState)
-                                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                                    .padding(bottom = 64.dp)
-            ) {
-              androidx.compose.runtime.SideEffect {
-                viewportHeightPx = with(density) { maxHeight.toPx().toInt() }
-              }
-              BasicTextField(
-                      value = textFieldValue,
-                      onValueChange = { newValue ->
-                        textFieldValue = newValue
-                        viewModel.updateNoteInMemory(noteId, newValue.text)
-                      },
-                      onTextLayout = { result -> textLayoutResult = result },
-                      modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
-                      textStyle =
-                              TextStyle(
-                                      color = onSurfaceText,
-                                      fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                                      lineHeight = MaterialTheme.typography.bodyLarge.lineHeight
-                              ),
-                      cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                      decorationBox = { innerTextField ->
-                        Box {
-                          if (textFieldValue.text.isEmpty()) {
-                            Text(
-                                    stringResource(R.string.editor_placeholder),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = onSurfaceText.copy(alpha = 0.38f)
+    Column(modifier = Modifier.fillMaxSize()) {
+      TopAppBar(
+              title = {},
+              navigationIcon = {
+                IconButton(onClick = { isExiting = true }) {
+                  Icon(
+                          Icons.AutoMirrored.Filled.ArrowBack,
+                          stringResource(R.string.editor_back),
+                          tint = onSurfaceText.copy(alpha = 0.7f)
+                  )
+                }
+              },
+              actions = {
+                IconButton(
+                        onClick = {
+                          val maxScroll = editorScrollState.maxValue
+                          if (maxScroll > 0) {
+                            scrollRatio = editorScrollState.value.toFloat() / maxScroll.toFloat()
+                            Log.d(
+                                    TAG,
+                                    "切换模式前保存滚动进度：$scrollRatio (offset=${editorScrollState.value}/$maxScroll)"
                             )
                           }
-                          innerTextField()
+                          isPreviewMode = !isPreviewMode
                         }
-                      }
-              )
+                ) {
+                  Icon(
+                          imageVector =
+                                  if (isPreviewMode) Icons.Default.Visibility
+                                  else Icons.Default.VisibilityOff,
+                          contentDescription =
+                                  if (isPreviewMode) stringResource(R.string.editor_code_mode)
+                                  else stringResource(R.string.editor_preview_mode),
+                          tint =
+                                  if (isPreviewMode) MaterialTheme.colorScheme.primary
+                                  else onSurfaceText.copy(alpha = 0.7f)
+                  )
+                }
+                IconButton(onClick = { viewModel.pinNote(context, noteId) }) {
+                  Icon(
+                          imageVector =
+                                  if (note.isPinned) Icons.Filled.PushPin
+                                  else Icons.Outlined.PushPin,
+                          contentDescription =
+                                  if (note.isPinned) stringResource(R.string.editor_pinned)
+                                  else stringResource(R.string.editor_unpinned),
+                          tint =
+                                  if (note.isPinned) MaterialTheme.colorScheme.primary
+                                  else onSurfaceText.copy(alpha = 0.7f)
+                  )
+                }
+                IconButton(
+                        onClick = {
+                          viewModel.archiveNote(context, noteId)
+                          isExiting = true
+                        }
+                ) {
+                  Icon(
+                          Icons.Default.Archive,
+                          stringResource(R.string.editor_archive),
+                          tint = onSurfaceText.copy(alpha = 0.7f)
+                  )
+                }
+                IconButton(onClick = { showRenameDialog = true }) {
+                  Icon(
+                          Icons.Default.DriveFileRenameOutline,
+                          stringResource(R.string.rename),
+                          tint = onSurfaceText.copy(alpha = 0.7f)
+                  )
+                }
+              },
+              colors =
+                      TopAppBarDefaults.topAppBarColors(
+                              containerColor = surfaceBg,
+                              titleContentColor = onSurfaceText,
+                              navigationIconContentColor = onSurfaceText.copy(alpha = 0.7f),
+                              actionIconContentColor = onSurfaceText.copy(alpha = 0.7f)
+                      )
+      )
+
+      Box(
+              modifier =
+                      Modifier.weight(1f)
+                              .fillMaxWidth()
+                              .navigationBarsPadding()
+                              .windowInsetsPadding(WindowInsets.ime)
+      ) {
+        if (isPreviewMode) {
+          MarkdownPreview(
+                  markdown = textFieldValue.text,
+                  textColor = onSurfaceText,
+                  scrollState = editorScrollState,
+                  modifier = Modifier
+          )
+        } else {
+          BoxWithConstraints(
+                  modifier =
+                          Modifier.fillMaxSize()
+                                  .verticalScroll(editorScrollState)
+                                  .padding(horizontal = 16.dp, vertical = 12.dp)
+          ) {
+            androidx.compose.runtime.SideEffect {
+              viewportHeightPx = with(density) { maxHeight.toPx().toInt() }
             }
+            BasicTextField(
+                    value = textFieldValue,
+                    onValueChange = { newValue ->
+                      textFieldValue = newValue
+                      viewModel.updateNoteInMemory(noteId, newValue.text)
+                    },
+                    onTextLayout = { result -> textLayoutResult = result },
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    textStyle =
+                            TextStyle(
+                                    color = onSurfaceText,
+                                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight
+                            ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    decorationBox = { innerTextField ->
+                      Box {
+                        if (textFieldValue.text.isEmpty()) {
+                          Text(
+                                  stringResource(R.string.editor_placeholder),
+                                  style = MaterialTheme.typography.bodyLarge,
+                                  color = onSurfaceText.copy(alpha = 0.38f)
+                          )
+                        }
+                        innerTextField()
+                      }
+                    }
+            )
           }
         }
       }
 
       EditorBottomBar(
-              modifier = Modifier.align(Alignment.BottomCenter),
+              modifier = Modifier,
               noteId = noteId,
               textFieldValue = textFieldValue,
               isPreviewMode = isPreviewMode,

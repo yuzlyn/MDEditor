@@ -102,6 +102,38 @@ private fun preserveBlankLines(source: String): String {
   return sb.toString()
 }
 
+/**
+ * 将 $$...$$ 数学公式块转换为 fenced code block (```math ...
+ * ```
+ * ```)
+ * ```
+ */
+private fun preprocessMathBlocks(source: String): String {
+  val lines = source.lines()
+  val sb = StringBuilder()
+  var mathOpen = false
+  for (i in lines.indices) {
+    val line = lines[i]
+    if (i > 0) sb.append('\n')
+    if (line.trim() == "$$") {
+      if (mathOpen) {
+        sb.append("```")
+        mathOpen = false
+      } else {
+        sb.append("```math")
+        mathOpen = true
+      }
+    } else {
+      sb.append(line)
+    }
+  }
+  // 未闭合的 math 块自动闭合
+  if (mathOpen) {
+    sb.append("\n```")
+  }
+  return sb.toString()
+}
+
 @Composable
 fun MarkdownPreview(
         markdown: String,
@@ -114,7 +146,7 @@ fun MarkdownPreview(
   val rootNode =
           remember(markdown) {
             try {
-              val preprocessed = preserveBlankLines(markdown)
+              val preprocessed = preprocessMathBlocks(preserveBlankLines(markdown))
               markdownParser.parse(preprocessed)
             } catch (e: Exception) {
               Log.e(TAG, "Markdown 解析失敗: ${e.message}")
