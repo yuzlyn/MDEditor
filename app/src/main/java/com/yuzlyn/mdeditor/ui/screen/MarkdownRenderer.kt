@@ -85,16 +85,21 @@ private val markdownParser: Parser by lazy {
 
 private val htmlRenderer: HtmlRenderer by lazy { HtmlRenderer.builder(flexmarkOptions).build() }
 
-/** 将源代码中的空白行替换为包含零宽字符的段落， 防止 flexmark 把多个连续空行折叠成一个段落分隔。 */
+/**
+ * 仅对连续空行的第2条及之后注入占位字符，
+ * 保留首条空行不动，避免破坏表格等依赖空行作分隔符的语法。
+ */
 private fun preserveBlankLines(source: String): String {
   val lines = source.lines()
   val sb = StringBuilder()
   for (i in lines.indices) {
     val line = lines[i]
     if (i > 0) sb.append('\n')
-    if (line.isBlank() && !(i == lines.lastIndex && line.isEmpty())) {
-      // 用非断行空格 + 零宽空格确保 flexmark 生成可见的空白段落
+    val prevBlank = i > 0 && lines[i - 1].isBlank()
+    if (line.isBlank() && prevBlank && !(i == lines.lastIndex && line.isEmpty())) {
       sb.append("\u00A0\u200B")
+    } else if (line.isBlank() && i == lines.lastIndex) {
+      // 末尾空白行不追加内容
     } else {
       sb.append(line)
     }
