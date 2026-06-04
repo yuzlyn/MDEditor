@@ -220,7 +220,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   val onSurfaceText = MonetPalette.textColorFor(note.backgroundColor, darkTheme = isDark)
 
   Surface(color = surfaceBg) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.ime)) {
       TopAppBar(
               title = {},
               navigationIcon = {
@@ -300,13 +300,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
                       )
       )
 
-      Box(
-              modifier =
-                      Modifier.weight(1f)
-                              .fillMaxWidth()
-                              .navigationBarsPadding()
-                              .windowInsetsPadding(WindowInsets.ime)
-      ) {
+      Box(modifier = Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
         if (isPreviewMode) {
           MarkdownPreview(
                   markdown = textFieldValue.text,
@@ -427,8 +421,6 @@ private fun EditorBottomBar(
           modifier =
                   modifier.fillMaxWidth()
                           .padding(horizontal = 16.dp, vertical = 12.dp)
-                          .navigationBarsPadding()
-                          .windowInsetsPadding(WindowInsets.ime)
                           .border(0.5.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
           shape = CircleShape,
           color = bgColor,
