@@ -85,10 +85,7 @@ private val markdownParser: Parser by lazy {
 
 private val htmlRenderer: HtmlRenderer by lazy { HtmlRenderer.builder(flexmarkOptions).build() }
 
-/**
- * 仅对连续空行的第2条及之后注入占位字符，
- * 保留首条空行不动，避免破坏表格等依赖空行作分隔符的语法。
- */
+/** 仅对连续空行的第2条及之后注入占位字符， 保留首条空行不动，避免破坏表格等依赖空行作分隔符的语法。 */
 private fun preserveBlankLines(source: String): String {
   val lines = source.lines()
   val sb = StringBuilder()
@@ -107,8 +104,45 @@ private fun preserveBlankLines(source: String): String {
   return sb.toString()
 }
 
+/** 确保表格前有空白行，否则 flexmark 会把表格当普通文字段落。 */
+private fun preprocessTables(source: String): String {
+  val lines = source.lines()
+  if (lines.size < 2) return source
+  val out = mutableListOf<String>()
+  for (i in lines.indices) {
+    val line = lines[i]
+    // 检测表格分隔行: 只包含 | : - 和空格
+    val isSep =
+            line.trim().let { seg ->
+              seg.startsWith("|") &&
+                      seg.endsWith("|") &&
+                      seg.all { c -> c == '|' || c == ':' || c == '-' || c == ' ' } &&
+                      seg.contains('-')
+            }
+    if (isSep) {
+      val prevLine = lines[i - 1]
+      val prevIsHeader = prevLine.contains("|")
+      val beforePrevBlank = i < 2 || lines[i - 2].isBlank()
+      if (prevIsHeader && !beforePrevBlank) {
+        // 表头前插入空白行：回退最近添加的表头行，先加空行再加表头
+        out.removeAt(out.lastIndex)
+        out.add("")
+        out.add(prevLine)
+        out.add(line)
+        continue
+      }
+    }
+    out.add(line)
+  }
+  return out.joinToString("\n")
+}
+
 /**
  * 将 $$...$$ 数学公式块转换为 fenced code block (```math ...
+ * ```
+ * ```
+ * ```
+ * ```
  * ```
  * ```)
  * ```
@@ -151,7 +185,8 @@ fun MarkdownPreview(
   val rootNode =
           remember(markdown) {
             try {
-              val preprocessed = preprocessMathBlocks(preserveBlankLines(markdown))
+              val preprocessed =
+                      preprocessMathBlocks(preprocessTables(preserveBlankLines(markdown)))
               markdownParser.parse(preprocessed)
             } catch (e: Exception) {
               Log.e(TAG, "Markdown 解析失敗: ${e.message}")

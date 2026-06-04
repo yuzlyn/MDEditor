@@ -3,7 +3,6 @@ package com.yuzlyn.mdeditor.ui.screen
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -53,9 +51,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -79,6 +79,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -134,6 +135,10 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
 
   val density = LocalDensity.current
   val isImeVisible = WindowInsets.ime.getBottom(density) > 0
+  // 底部按钮栏约 48dp 按钮 + 16dp padding = 64dp
+  val bottomBarHeightPx = with(density) { 64.dp.toPx().toInt() }
+  // 光标上方安全可见行数 (2行 ≈ 48dp)
+  val cursorSafeBufferPx = with(density) { 48.dp.toPx().toInt() }
 
   LaunchedEffect(focusRequestVersion) {
     if (focusRequestVersion > 0) {
@@ -159,32 +164,29 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
     ) {
       try {
         val cursorRect = textLayoutResult!!.getCursorRect(textFieldValue.selection.start)
-        val safetyPx = with(density) { 50.dp.toPx() }
-        // cursorRect 在文本佈局坐標系中，editorScrollState.value 是滾動偏移量
-        // 光標在可視區域中的位置 = cursorRect.bottom - editorScrollState.value
-        val cursorVisibleY = cursorRect.bottom - editorScrollState.value
-        if (cursorVisibleY > viewportHeightPx - safetyPx || cursorVisibleY < 0) {
-          val target =
-                  (editorScrollState.value + cursorVisibleY - viewportHeightPx / 2)
-                          .toInt()
-                          .coerceAtLeast(0)
+        // 光标在viewport内的Y位置 = 内容中位置 - 滚动偏移
+        val cursorVisibleY = (cursorRect.bottom - editorScrollState.value).toInt()
+        // 扣除底栏后的可见底部边界
+        val visibleBottom = (viewportHeightPx - bottomBarHeightPx).coerceAtLeast(0)
+        Log.d(
+                TAG,
+                "IME补偿检查: cursorContentBottom=${cursorRect.bottom} scroll=${editorScrollState.value} " +
+                        "cursorVisible=$cursorVisibleY viewport=$viewportHeightPx visibleBottom=$visibleBottom"
+        )
+        if (cursorVisibleY > visibleBottom) {
+          // 滚动距离 = 光标超出量 + 安全缓冲，让光标出现在 visibleBottom 上方
+          val overshoot = cursorVisibleY - visibleBottom + cursorSafeBufferPx.toInt()
+          val target = (editorScrollState.value + overshoot).coerceAtLeast(0)
           Log.d(
                   TAG,
-                  "檢測到鍵盤彈起，光標被遮擋：cursorBottom=${cursorRect.bottom}, " +
-                          "scrollValue=${editorScrollState.value}, cursorVisible=$cursorVisibleY, " +
-                          "viewport=$viewportHeightPx, target=$target"
+                  "执行滚动: overshoot=$overshoot target=$target maxScroll=${editorScrollState.maxValue}"
           )
           editorScrollState.animateScrollTo(target)
-        } else {
-          Log.d(
-                  TAG,
-                  "鍵盤彈起但光標在可視區內 (cursorVisible=$cursorVisibleY, viewport=$viewportHeightPx)，畫面保持靜態"
-          )
+          hasCompensated = true
         }
       } catch (e: Exception) {
-        Log.e(TAG, "光標遮擋計算失敗: ${e.message}")
+        Log.e(TAG, "光标遮挡计算失败: ${e.message}")
       }
-      hasCompensated = true
     }
   }
 
@@ -220,7 +222,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
   val onSurfaceText = MonetPalette.textColorFor(note.backgroundColor, darkTheme = isDark)
 
   Surface(color = surfaceBg) {
-    Column(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.ime)) {
+    Column(modifier = Modifier.fillMaxSize()) {
       TopAppBar(
               title = {},
               navigationIcon = {
@@ -300,7 +302,7 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
                       )
       )
 
-      Box(modifier = Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
+      Box(modifier = Modifier.weight(1f).fillMaxWidth().windowInsetsPadding(WindowInsets.ime)) {
         if (isPreviewMode) {
           MarkdownPreview(
                   markdown = textFieldValue.text,
@@ -312,12 +314,12 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
           BoxWithConstraints(
                   modifier =
                           Modifier.fillMaxSize()
+                                  .onGloballyPositioned { coords ->
+                                    viewportHeightPx = coords.size.height
+                                  }
                                   .verticalScroll(editorScrollState)
                                   .padding(horizontal = 16.dp, vertical = 12.dp)
           ) {
-            androidx.compose.runtime.SideEffect {
-              viewportHeightPx = with(density) { maxHeight.toPx().toInt() }
-            }
             BasicTextField(
                     value = textFieldValue,
                     onValueChange = { newValue ->
@@ -348,21 +350,21 @@ fun EditorScreen(navController: NavHostController, viewModel: FileViewModel) {
             )
           }
         }
-      }
 
-      EditorBottomBar(
-              modifier = Modifier,
-              noteId = noteId,
-              textFieldValue = textFieldValue,
-              isPreviewMode = isPreviewMode,
-              viewModel = viewModel,
-              onTextFieldUpdate = {
-                textFieldValue = it
-                focusRequestVersion++
-              },
-              bgColor = surfaceBg,
-              textColor = onSurfaceText
-      )
+        EditorBottomBar(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                noteId = noteId,
+                textFieldValue = textFieldValue,
+                isPreviewMode = isPreviewMode,
+                viewModel = viewModel,
+                onTextFieldUpdate = {
+                  textFieldValue = it
+                  focusRequestVersion++
+                },
+                bgColor = surfaceBg,
+                textColor = onSurfaceText
+        )
+      }
     }
 
     if (showRenameDialog) {
@@ -417,105 +419,88 @@ private fun EditorBottomBar(
 
   if (isPreviewMode) return
 
-  Surface(
-          modifier =
-                  modifier.fillMaxWidth()
-                          .padding(horizontal = 16.dp, vertical = 12.dp)
-                          .border(0.5.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
-          shape = CircleShape,
-          color = bgColor,
-          tonalElevation = 6.dp,
-          shadowElevation = 0.dp
+  Row(
+          modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+          horizontalArrangement = Arrangement.spacedBy(8.dp)
   ) {
-    Row(
-            Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-    ) {
-      IconButton(
-              onClick = {
-                focusManager.clearFocus()
-                showInsertSheet = true
-              }
-      ) {
-        Icon(
-                Icons.Default.Add,
-                stringResource(R.string.editor_insert),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-      }
-      IconButton(
-              onClick = {
-                focusManager.clearFocus()
-                showColorSheet = true
-              }
-      ) {
-        Icon(
-                Icons.Default.Palette,
-                stringResource(R.string.editor_bg_color),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-      }
-      IconButton(
-              onClick = {
-                focusManager.clearFocus()
-                showFormatSheet = true
-              }
-      ) {
-        Icon(
-                Icons.Default.TextFields,
-                stringResource(R.string.editor_format),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-      }
-      Spacer(modifier = Modifier.weight(1f))
-      Box {
-        IconButton(onClick = { showMoreMenu = true }) {
-          Icon(
-                  Icons.Default.MoreVert,
-                  stringResource(R.string.editor_more),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
-          )
-        }
-        DropdownMenu(expanded = showMoreMenu, onDismissRequest = { showMoreMenu = false }) {
-          DropdownMenuItem(
-                  text = { Text(stringResource(R.string.editor_delete)) },
-                  onClick = {
-                    viewModel.deleteNote(context, noteId)
-                    showMoreMenu = false
-                  },
-                  leadingIcon = {
-                    Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error)
-                  }
-          )
-          DropdownMenuItem(
-                  text = { Text(stringResource(R.string.editor_copy)) },
-                  onClick = {
-                    viewModel.copyNote(context, noteId)
-                    showMoreMenu = false
-                  },
-                  leadingIcon = {
-                    Icon(
-                            Icons.Default.ContentCopy,
-                            null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+    FilledIconButton(
+            onClick = {
+              focusManager.clearFocus()
+              showInsertSheet = true
+            },
+            colors =
+                    IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                  }
-          )
-          DropdownMenuItem(
-                  text = { Text(stringResource(R.string.editor_share)) },
-                  onClick = {
-                    viewModel.shareNote(context, noteId)
-                    showMoreMenu = false
-                  },
-                  leadingIcon = {
-                    Icon(
-                            Icons.Default.Share,
-                            null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+    ) { Icon(Icons.Default.Add, stringResource(R.string.editor_insert)) }
+    FilledIconButton(
+            onClick = {
+              focusManager.clearFocus()
+              showColorSheet = true
+            },
+            colors =
+                    IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                  }
-          )
-        }
+    ) { Icon(Icons.Default.Palette, stringResource(R.string.editor_bg_color)) }
+    FilledIconButton(
+            onClick = {
+              focusManager.clearFocus()
+              showFormatSheet = true
+            },
+            colors =
+                    IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+    ) { Icon(Icons.Default.TextFields, stringResource(R.string.editor_format)) }
+    Spacer(modifier = Modifier.weight(1f))
+    Box {
+      FilledIconButton(
+              onClick = { showMoreMenu = true },
+              colors =
+                      IconButtonDefaults.filledIconButtonColors(
+                              containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                              contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                      )
+      ) { Icon(Icons.Default.MoreVert, stringResource(R.string.editor_more)) }
+      DropdownMenu(expanded = showMoreMenu, onDismissRequest = { showMoreMenu = false }) {
+        DropdownMenuItem(
+                text = { Text(stringResource(R.string.editor_delete)) },
+                onClick = {
+                  viewModel.deleteNote(context, noteId)
+                  showMoreMenu = false
+                },
+                leadingIcon = {
+                  Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error)
+                }
+        )
+        DropdownMenuItem(
+                text = { Text(stringResource(R.string.editor_copy)) },
+                onClick = {
+                  viewModel.copyNote(context, noteId)
+                  showMoreMenu = false
+                },
+                leadingIcon = {
+                  Icon(
+                          Icons.Default.ContentCopy,
+                          null,
+                          tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  )
+                }
+        )
+        DropdownMenuItem(
+                text = { Text(stringResource(R.string.editor_share)) },
+                onClick = {
+                  viewModel.shareNote(context, noteId)
+                  showMoreMenu = false
+                },
+                leadingIcon = {
+                  Icon(Icons.Default.Share, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+        )
       }
     }
   }
